@@ -1,0 +1,79 @@
+# ==============================
+
+# Spring Boot / Java / Maven
+
+# ==============================
+
+target/
+build/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# ==============================
+
+# Maven
+
+# ==============================
+
+.mvn/wrapper/maven-wrapper.jar
+
+# ==============================
+
+# IDE Files
+
+# ==============================
+
+# IntelliJ
+
+.idea/
+*.iml
+
+# VS Code
+
+.vscode/
+
+# Eclipse
+
+.project
+.classpath
+.settings/
+
+# ==============================
+
+# OS Files
+
+# ==============================
+
+.DS_Store
+Thumbs.db
+
+# ==============================
+
+# Environment / Secrets
+
+# ==============================
+
+.env
+application-local.properties
+application-secret.properties
+
+# ==============================
+
+# Logs
+
+# ==============================
+
+logs/
+*.log
+
+# ==============================
+
+# Temporary Files
+
+# ==============================
+
+*.tmp
+*.temp
