@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RootController {
-    @GetMapping
+    @GetMapping("/api")
     public String helloMsg(){
         return "Welcome to EMS backend!";
     }
