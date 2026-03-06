@@ -1,15 +1,59 @@
 package com.fourbitlabs.employee_management_system.dto.request;
 
-import com.fourbitlabs.employee_management_system.enums.Role;
-import com.fourbitlabs.employee_management_system.enums.UserStatus;
-import lombok.Data;
+import jakarta.validation.constraints.*;
 
-@Data
-public class UserRequestDto {
+public class CreateUserRequestDto {
+
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @Email(message = "Invalid email format")
     private String email;
+
+    @NotBlank(message = "Password is required")
     private String password;
+
     private String phone;
-    private Role role;
-    private UserStatus userStatus;
+
+    public CreateUserRequestDto() {
+    }
+
+    public CreateUserRequestDto(String name, String email, String password, String phone) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }

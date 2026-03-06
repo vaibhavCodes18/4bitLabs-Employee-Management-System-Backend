@@ -1,14 +1,12 @@
 package com.fourbitlabs.employee_management_system.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "counsellor_profiles")
-@Data
 public class CounsellorProfile {
 
     @Id
@@ -30,6 +28,17 @@ public class CounsellorProfile {
 
     private LocalDateTime updatedAt;
 
+    public CounsellorProfile() {
+    }
+
+    public CounsellorProfile(Long id, User user, String department, LocalDate joiningDate, Double salary) {
+        this.id = id;
+        this.user = user;
+        this.department = department;
+        this.joiningDate = joiningDate;
+        this.salary = salary;
+    }
+
     // Method to be called before a new entity is persisted
     @PrePersist
     protected void onCreate() {
@@ -41,5 +50,61 @@ public class CounsellorProfile {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public LocalDate getJoiningDate() {
+        return joiningDate;
+    }
+
+    public void setJoiningDate(LocalDate joiningDate) {
+        this.joiningDate = joiningDate;
+    }
+
+    public Double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(Double salary) {
+        this.salary = salary;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
