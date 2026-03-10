@@ -2,7 +2,7 @@ package com.fourbitlabs.employee_management_system.dto.request;
 
 import jakarta.validation.constraints.*;
 
-public class CreateUserRequestDto {
+public class UserRequestDto {
 
     @NotBlank(message = "Name is required")
     private String name;
@@ -15,10 +15,10 @@ public class CreateUserRequestDto {
 
     private String phone;
 
-    public CreateUserRequestDto() {
+    public UserRequestDto() {
     }
 
-    public CreateUserRequestDto(String name, String email, String password, String phone) {
+    public UserRequestDto(String name, String email, String password, String phone) {
         this.name = name;
         this.email = email;
         this.password = password;

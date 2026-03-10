@@ -2,7 +2,7 @@ package com.fourbitlabs.employee_management_system.dto.request;
 
 import java.time.LocalDate;
 
-public class CreateTrainerRequestDto extends CreateUserRequestDto {
+public class TrainerRequestDto extends UserRequestDto {
     private String specialization;
 
     private Integer experienceYears;
@@ -13,11 +13,11 @@ public class CreateTrainerRequestDto extends CreateUserRequestDto {
 
     private Double salary;
 
-    public CreateTrainerRequestDto() {
+    public TrainerRequestDto() {
         this.joiningDate = LocalDate.now();
     }
 
-    public CreateTrainerRequestDto(String specialization, Integer experienceYears, String qualification,  Double salary) {
+    public TrainerRequestDto(String specialization, Integer experienceYears, String qualification, Double salary) {
         this.specialization = specialization;
         this.experienceYears = experienceYears;
         this.qualification = qualification;
@@ -25,7 +25,7 @@ public class CreateTrainerRequestDto extends CreateUserRequestDto {
         this.salary = salary;
     }
 
-    public CreateTrainerRequestDto(String name, String email, String password, String phone, String specialization, Integer experienceYears, String qualification, Double salary) {
+    public TrainerRequestDto(String name, String email, String password, String phone, String specialization, Integer experienceYears, String qualification, Double salary) {
         super(name, email, password, phone);
         this.specialization = specialization;
         this.experienceYears = experienceYears;
