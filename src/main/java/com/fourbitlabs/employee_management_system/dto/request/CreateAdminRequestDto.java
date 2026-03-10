@@ -6,6 +6,9 @@ public class CreateAdminRequestDto extends CreateUserRequestDto {
         super();
     }
 
-    // Admin has no extra fields beyond the base user fields.
+    public CreateAdminRequestDto(String name, String email, String password, String phone) {
+        super(name, email, password, phone);
+    }
+// Admin has no extra fields beyond the base user fields.
     // Inherits: name, email, password, phone from CreateUserRequestDto.
 }

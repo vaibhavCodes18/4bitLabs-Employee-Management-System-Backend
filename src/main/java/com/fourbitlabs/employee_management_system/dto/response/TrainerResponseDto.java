@@ -5,8 +5,8 @@ import com.fourbitlabs.employee_management_system.enums.UserStatus;
 
 import java.time.LocalDate;
 
-public class TrainerReaponseDto extends UserResponseDto{
-    private Long id;
+public class TrainerResponseDto extends UserResponseDto{
+
     private String specialization;
 
     private Integer experienceYears;
@@ -17,8 +17,10 @@ public class TrainerReaponseDto extends UserResponseDto{
 
     private Double salary;
 
-    public TrainerReaponseDto(Long id, String specialization, Integer experienceYears, String qualification, LocalDate joiningDate, Double salary) {
-        this.id = id;
+    public TrainerResponseDto() {
+    }
+
+    public TrainerResponseDto(String specialization, Integer experienceYears, String qualification, LocalDate joiningDate, Double salary) {
         this.specialization = specialization;
         this.experienceYears = experienceYears;
         this.qualification = qualification;
@@ -26,24 +28,13 @@ public class TrainerReaponseDto extends UserResponseDto{
         this.salary = salary;
     }
 
-    public TrainerReaponseDto(Long id, String name, String email, String phone, Role role, UserStatus status, Long id1, String specialization, Integer experienceYears, String qualification, LocalDate joiningDate, Double salary) {
+    public TrainerResponseDto(Long id, String name, String email, String phone, Role role, UserStatus status, String specialization, Integer experienceYears, String qualification, LocalDate joiningDate, Double salary) {
         super(id, name, email, phone, role, status);
-        this.id = id1;
         this.specialization = specialization;
         this.experienceYears = experienceYears;
         this.qualification = qualification;
         this.joiningDate = joiningDate;
         this.salary = salary;
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getSpecialization() {
