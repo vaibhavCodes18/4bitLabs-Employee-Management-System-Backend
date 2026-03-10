@@ -5,6 +5,8 @@ import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -30,6 +32,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private User createdByAdmin;
+
+    @OneToMany(mappedBy = "createdByAdmin")
+    private List<User> managedUsers = new ArrayList<>();
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -38,8 +47,7 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String name, String email, String password, String phone,
-                Role role, UserStatus status) {
+    public User(Long id, String name, String email, String password, String phone, Role role, UserStatus status, User createdByAdmin, List<User> managedUsers, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -47,19 +55,10 @@ public class User {
         this.phone = phone;
         this.role = role;
         this.status = status;
-    }
-
-    // Method to be called before a new entity is persisted
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    // Method to be called before an existing entity is updated
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.createdByAdmin = createdByAdmin;
+        this.managedUsers = managedUsers;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -116,6 +115,22 @@ public class User {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public User getCreatedByAdmin() {
+        return createdByAdmin;
+    }
+
+    public void setCreatedByAdmin(User createdByAdmin) {
+        this.createdByAdmin = createdByAdmin;
+    }
+
+    public List<User> getManagedUsers() {
+        return managedUsers;
+    }
+
+    public void setManagedUsers(List<User> managedUsers) {
+        this.managedUsers = managedUsers;
     }
 
     public LocalDateTime getCreatedAt() {
