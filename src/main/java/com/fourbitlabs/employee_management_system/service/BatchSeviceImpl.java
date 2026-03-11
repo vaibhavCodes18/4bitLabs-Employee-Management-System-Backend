@@ -1,4 +1,4 @@
 package com.fourbitlabs.employee_management_system.service;
 
-public class BatchSeviceImpl {
+public class BatchSeviceImpl implements BatchSevice{
 }
