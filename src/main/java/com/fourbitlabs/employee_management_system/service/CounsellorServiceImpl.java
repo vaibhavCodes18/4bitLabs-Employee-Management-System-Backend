@@ -7,11 +7,14 @@ import com.fourbitlabs.employee_management_system.entity.User;
 import com.fourbitlabs.employee_management_system.enums.Role;
 import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
+import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.CounsellorProfileRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CounsellorServiceImpl implements CounsellorService {
@@ -23,11 +26,13 @@ public class CounsellorServiceImpl implements CounsellorService {
     private CounsellorProfileRepository counsellorProfileRepository;
 
     @Override
-    public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto) {
+    public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto, Long adminId) {
         // Check for duplicate email
         if (userRepository.existsByEmail(counsellorRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + counsellorRequestDto.getEmail() + "' already exists");
         }
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ adminId + " is not found."));
 
         User user = new User();
         user.setName(counsellorRequestDto.getName());
@@ -36,7 +41,9 @@ public class CounsellorServiceImpl implements CounsellorService {
         user.setPassword(counsellorRequestDto.getPassword());
         user.setRole(Role.COUNSELLOR);
         user.setStatus(UserStatus.ACTIVE);
+        user.setCreatedByAdmin(admin);
         User savedUser = userRepository.save(user);
+        user.getManagedUsers().add(savedUser);
 
         CounsellorProfile counsellorProfile = new CounsellorProfile();
         counsellorProfile.setDepartment(counsellorRequestDto.getDepartment());

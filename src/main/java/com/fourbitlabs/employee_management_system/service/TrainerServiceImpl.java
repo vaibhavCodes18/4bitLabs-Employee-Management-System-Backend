@@ -7,11 +7,14 @@ import com.fourbitlabs.employee_management_system.entity.User;
 import com.fourbitlabs.employee_management_system.enums.Role;
 import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
+import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.TrainerProfileRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TrainerServiceImpl implements TrainerService {
@@ -23,11 +26,13 @@ public class TrainerServiceImpl implements TrainerService {
     private TrainerProfileRepository trainerProfileRepository;
 
     @Override
-    public TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto) {
+    public TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto, Long adminId) {
         // Check for duplicate email
         if (userRepository.existsByEmail(trainerRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + trainerRequestDto.getEmail() + "' already exists");
         }
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ adminId + " is not found."));
 
         User user = new User();
         user.setName(trainerRequestDto.getName());
@@ -36,7 +41,9 @@ public class TrainerServiceImpl implements TrainerService {
         user.setPassword(trainerRequestDto.getPassword());
         user.setRole(Role.TRAINER);
         user.setStatus(UserStatus.ACTIVE);
+        user.setCreatedByAdmin(admin);
         User savedUser = userRepository.save(user);
+        user.getManagedUsers().add(savedUser);
 
         TrainerProfile trainerProfile = new TrainerProfile();
         trainerProfile.setSpecialization(trainerRequestDto.getSpecialization());

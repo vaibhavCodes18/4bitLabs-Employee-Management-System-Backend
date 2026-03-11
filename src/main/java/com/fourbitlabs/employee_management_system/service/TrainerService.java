@@ -4,5 +4,5 @@ import com.fourbitlabs.employee_management_system.dto.request.TrainerRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.TrainerResponseDto;
 
 public interface TrainerService {
-    TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto);
+    TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto, Long adminId);
 }

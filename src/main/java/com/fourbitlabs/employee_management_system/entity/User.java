@@ -60,6 +60,15 @@ public class User {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+    @PrePersist
+    public void createdAt(){
+        this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public Long getId() {
         return id;

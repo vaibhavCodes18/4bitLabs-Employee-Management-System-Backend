@@ -30,8 +30,9 @@ public class AdminServiceImpl implements AdminService {
         user.setPhone(createAdminRequestDto.getPhone());
         user.setRole(Role.ADMIN);
         user.setStatus(UserStatus.ACTIVE);
-
+        user.setCreatedByAdmin(null);
         User savedUser = userRepository.save(user);
+        user.getManagedUsers().add(savedUser);
 
         AdminResponseDto responseDto = new AdminResponseDto();
         responseDto.setId(savedUser.getId());

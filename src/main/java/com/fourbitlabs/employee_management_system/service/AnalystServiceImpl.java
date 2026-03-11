@@ -7,11 +7,14 @@ import com.fourbitlabs.employee_management_system.entity.User;
 import com.fourbitlabs.employee_management_system.enums.Role;
 import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
+import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.AnalystProfileRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AnalystServiceImpl implements AnalystService {
@@ -23,11 +26,14 @@ public class AnalystServiceImpl implements AnalystService {
     private AnalystProfileRepository analystProfileRepository;
 
     @Override
-    public AnalystResponseDto createAnalyst(AnalystRequestDto analystRequestDto) {
+    public AnalystResponseDto createAnalyst(AnalystRequestDto analystRequestDto, Long adminId) {
         // Check for duplicate email
         if (userRepository.existsByEmail(analystRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + analystRequestDto.getEmail() + "' already exists");
         }
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ adminId + " is not found."));
+
 
         User user = new User();
         user.setName(analystRequestDto.getName());
@@ -36,7 +42,9 @@ public class AnalystServiceImpl implements AnalystService {
         user.setPassword(analystRequestDto.getPassword());
         user.setRole(Role.ANALYST);
         user.setStatus(UserStatus.ACTIVE);
+        user.setCreatedByAdmin(admin);
         User savedUser = userRepository.save(user);
+        user.getManagedUsers().add(savedUser);
 
         AnalystProfile analystProfile = new AnalystProfile();
         analystProfile.setDepartment(analystRequestDto.getDepartment());
