@@ -73,6 +73,7 @@ public class CounsellorServiceImpl implements CounsellorService {
                 .orElseThrow(() -> new ResourceNotFoundException("A counsellor not found with this id: "+studentRequestDto.getCounsellorId()));
 
         Student student = new Student();
+
         student.setName(studentRequestDto.getName());
         student.setEmail(studentRequestDto.getEmail());
         student.setPhone(studentRequestDto.getPhone());
@@ -85,7 +86,7 @@ public class CounsellorServiceImpl implements CounsellorService {
     }
 
     @NotNull
-    private static StudentResponseDto getStudentResponseDto(Student savedStudent) {
+    private StudentResponseDto getStudentResponseDto(Student savedStudent) {
         StudentResponseDto studentResponseDto = new StudentResponseDto();
         studentResponseDto.setId(savedStudent.getId());
         studentResponseDto.setName(savedStudent.getName());

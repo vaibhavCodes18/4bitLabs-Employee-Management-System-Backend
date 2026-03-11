@@ -17,11 +17,6 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @GetMapping("/")
-    public String helloMsg() {
-        return "Welcome to EMS backend!";
-    }
-
     @PostMapping("/admin")
     public ResponseEntity<?> saveAdmin(@Valid @RequestBody AdminRequestDto createAdminRequestDto) {
         AdminResponseDto adminResponseDto = adminService.createAdmin(createAdminRequestDto);
