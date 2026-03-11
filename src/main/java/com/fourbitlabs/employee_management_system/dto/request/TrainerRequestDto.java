@@ -13,25 +13,29 @@ public class TrainerRequestDto extends UserRequestDto {
 
     private Double salary;
 
+    private Long adminId;
+
     public TrainerRequestDto() {
         this.joiningDate = LocalDate.now();
     }
 
-    public TrainerRequestDto(String specialization, Integer experienceYears, String qualification, Double salary) {
-        this.specialization = specialization;
-        this.experienceYears = experienceYears;
-        this.qualification = qualification;
-        this.joiningDate = LocalDate.now();
-        this.salary = salary;
-    }
-
-    public TrainerRequestDto(String name, String email, String password, String phone, String specialization, Integer experienceYears, String qualification, Double salary) {
+    public TrainerRequestDto(String name, String email, String password, String phone, String specialization, Integer experienceYears, String qualification, LocalDate joiningDate, Double salary, Long adminId) {
         super(name, email, password, phone);
         this.specialization = specialization;
         this.experienceYears = experienceYears;
         this.qualification = qualification;
-        this.joiningDate = LocalDate.now();
+        this.joiningDate = joiningDate;
         this.salary = salary;
+        this.adminId = adminId;
+    }
+
+    public TrainerRequestDto(String specialization, Integer experienceYears, String qualification, LocalDate joiningDate, Double salary, Long adminId) {
+        this.specialization = specialization;
+        this.experienceYears = experienceYears;
+        this.qualification = qualification;
+        this.joiningDate = joiningDate;
+        this.salary = salary;
+        this.adminId = adminId;
     }
 
     public String getSpecialization() {
@@ -72,5 +76,13 @@ public class TrainerRequestDto extends UserRequestDto {
 
     public void setSalary(Double salary) {
         this.salary = salary;
+    }
+
+    public Long getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
     }
 }

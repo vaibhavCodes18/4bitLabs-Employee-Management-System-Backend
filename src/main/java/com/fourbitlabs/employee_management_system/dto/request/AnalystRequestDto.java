@@ -9,20 +9,26 @@ public class AnalystRequestDto extends UserRequestDto{
 
     private Double salary;
 
+    private Long adminId;
+
     public AnalystRequestDto() {
 
         this.joiningDate = LocalDate.now();
     }
 
-    public AnalystRequestDto(String department, LocalDate joiningDate, Double salary) {
+    public AnalystRequestDto(String department, LocalDate joiningDate, Double salary, Long adminId) {
         this.department = department;
+        this.joiningDate = joiningDate;
         this.salary = salary;
+        this.adminId = adminId;
     }
 
-    public AnalystRequestDto(String name, String email, String password, String phone, String department, LocalDate joiningDate, Double salary) {
+    public AnalystRequestDto(String name, String email, String password, String phone, String department, LocalDate joiningDate, Double salary, Long adminId) {
         super(name, email, password, phone);
         this.department = department;
+        this.joiningDate = joiningDate;
         this.salary = salary;
+        this.adminId = adminId;
     }
 
     public String getDepartment() {
@@ -47,5 +53,13 @@ public class AnalystRequestDto extends UserRequestDto{
 
     public void setSalary(Double salary) {
         this.salary = salary;
+    }
+
+    public Long getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
     }
 }

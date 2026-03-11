@@ -26,13 +26,13 @@ public class AnalystServiceImpl implements AnalystService {
     private AnalystProfileRepository analystProfileRepository;
 
     @Override
-    public AnalystResponseDto createAnalyst(AnalystRequestDto analystRequestDto, Long adminId) {
+    public AnalystResponseDto createAnalyst(AnalystRequestDto analystRequestDto) {
         // Check for duplicate email
         if (userRepository.existsByEmail(analystRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + analystRequestDto.getEmail() + "' already exists");
         }
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ adminId + " is not found."));
+        User admin = userRepository.findById(analystRequestDto.getAdminId())
+                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ analystRequestDto.getAdminId() + " is not found."));
 
 
         User user = new User();

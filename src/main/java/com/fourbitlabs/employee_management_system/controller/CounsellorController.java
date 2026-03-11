@@ -17,9 +17,9 @@ public class CounsellorController {
     @Autowired
     private CounsellorService counsellorService;
 
-    @PostMapping("/{adminId}")
-    public ResponseEntity<?> saveCounsellor(@Valid @RequestBody CounsellorRequestDto counsellorRequestDto, @PathVariable("adminId") Long adminId) {
-        CounsellorResponseDto counsellorResponseDto = counsellorService.createCounsellor(counsellorRequestDto, adminId);
+    @PostMapping
+    public ResponseEntity<?> saveCounsellor(@Valid @RequestBody CounsellorRequestDto counsellorRequestDto) {
+        CounsellorResponseDto counsellorResponseDto = counsellorService.createCounsellor(counsellorRequestDto);
         ApiResponse<?> apiResponse = new ApiResponse<>(201, "Counsellor created", counsellorResponseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }

@@ -17,9 +17,9 @@ public class AnalystController {
     @Autowired
     private AnalystService analystService;
 
-    @PostMapping("/{adminId}")
-    public ResponseEntity<?> saveAnalyst(@Valid @RequestBody AnalystRequestDto analystRequestDto, @PathVariable("adminId") Long adminId) {
-        AnalystResponseDto analystResponseDto = analystService.createAnalyst(analystRequestDto, adminId);
+    @PostMapping
+    public ResponseEntity<?> saveAnalyst(@Valid @RequestBody AnalystRequestDto analystRequestDto) {
+        AnalystResponseDto analystResponseDto = analystService.createAnalyst(analystRequestDto);
         ApiResponse<?> apiResponse = new ApiResponse<>(201, "Analyst created", analystResponseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }

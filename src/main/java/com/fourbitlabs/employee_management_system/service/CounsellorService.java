@@ -4,5 +4,5 @@ import com.fourbitlabs.employee_management_system.dto.request.CounsellorRequestD
 import com.fourbitlabs.employee_management_system.dto.response.CounsellorResponseDto;
 
 public interface CounsellorService {
-    CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto, Long adminId);
+    CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto);
 }

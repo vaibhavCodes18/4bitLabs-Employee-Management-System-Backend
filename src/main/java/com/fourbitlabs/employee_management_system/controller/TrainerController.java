@@ -17,9 +17,9 @@ public class TrainerController {
     @Autowired
     private TrainerService trainerService;
 
-    @PostMapping("/{adminId}")
-    public ResponseEntity<?> saveTrainer(@Valid @RequestBody TrainerRequestDto trainerRequestDto, @PathVariable("adminId") Long adminId) {
-        TrainerResponseDto trainerResponseDto = trainerService.createTrainer(trainerRequestDto,adminId);
+    @PostMapping
+    public ResponseEntity<?> saveTrainer(@Valid @RequestBody TrainerRequestDto trainerRequestDto) {
+        TrainerResponseDto trainerResponseDto = trainerService.createTrainer(trainerRequestDto);
         ApiResponse<?> apiResponse = new ApiResponse<>(201, "Trainer created", trainerResponseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }

@@ -22,23 +22,17 @@ public class BatchServiceImpl implements BatchService {
     @Autowired
     private BatchRepository batchRepository;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private AnalystProfileRepository analystProfile;
     @Autowired
     private TrainerProfileRepository trainerProfileRepository;
 
     @Override
     public BatchResponseDto saveBatch(BatchRequestDto batchRequestDto) {
-        User analystUser = userRepository.findById(batchRequestDto.getAnalystId())
-                .orElseThrow(()->new ResourceNotFoundException("User analyst not found with this id: "+batchRequestDto.getAnalystId()));
-        AnalystProfile analystProfiles = analystProfile.findByUserId(analystUser.getId())
-                .orElseThrow(()->new ResourceNotFoundException("Analyst not found with this id: "+analystUser.getId()));
+        AnalystProfile analystProfiles = analystProfile.findById(batchRequestDto.getAnalystId())
+                .orElseThrow(()->new ResourceNotFoundException("Analyst not found with this id: "+batchRequestDto.getAnalystId()));
 
-        User trainerUser = userRepository.findById(batchRequestDto.getTrainerId())
-                .orElseThrow(()->new ResourceNotFoundException("User trainer not found with this id: "+batchRequestDto.getTrainerId()));
-        TrainerProfile trainerProfiles = trainerProfileRepository.findByUserId(trainerUser.getId())
-                .orElseThrow(()->new ResourceNotFoundException("Trainer not found with this id: "+trainerUser.getId()));
+        TrainerProfile trainerProfiles = trainerProfileRepository.findById(batchRequestDto.getTrainerId())
+                .orElseThrow(()->new ResourceNotFoundException("Trainer not found with this id: "+batchRequestDto.getTrainerId()));
 
         Batch batch = new Batch();
         batch.setName(batchRequestDto.getName());
@@ -62,8 +56,8 @@ public class BatchServiceImpl implements BatchService {
         batchResponseDto.setStatus(savedBatch.getStatus());
         batchResponseDto.setStartDate(savedBatch.getStartDate());
         batchResponseDto.setEndDate(savedBatch.getEndDate());
-        batchResponseDto.setAnalystId(savedBatch.getAnalyst().getUser().getId());
-        batchResponseDto.setTrainerId(savedBatch.getTrainer().getUser().getId());
+        batchResponseDto.setAnalystId(savedBatch.getAnalyst().getId());
+        batchResponseDto.setTrainerId(savedBatch.getTrainer().getId());
         return batchResponseDto;
     }
 }

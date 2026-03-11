@@ -26,13 +26,13 @@ public class CounsellorServiceImpl implements CounsellorService {
     private CounsellorProfileRepository counsellorProfileRepository;
 
     @Override
-    public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto, Long adminId) {
+    public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto) {
         // Check for duplicate email
         if (userRepository.existsByEmail(counsellorRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + counsellorRequestDto.getEmail() + "' already exists");
         }
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ adminId + " is not found."));
+        User admin = userRepository.findById(counsellorRequestDto.getAdminId())
+                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ counsellorRequestDto.getAdminId() + " is not found."));
 
         User user = new User();
         user.setName(counsellorRequestDto.getName());

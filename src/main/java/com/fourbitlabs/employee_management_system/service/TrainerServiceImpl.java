@@ -26,13 +26,13 @@ public class TrainerServiceImpl implements TrainerService {
     private TrainerProfileRepository trainerProfileRepository;
 
     @Override
-    public TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto, Long adminId) {
+    public TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto) {
         // Check for duplicate email
         if (userRepository.existsByEmail(trainerRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + trainerRequestDto.getEmail() + "' already exists");
         }
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ adminId + " is not found."));
+        User admin = userRepository.findById(trainerRequestDto.getAdminId())
+                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ trainerRequestDto.getAdminId() + " is not found."));
 
         User user = new User();
         user.setName(trainerRequestDto.getName());
