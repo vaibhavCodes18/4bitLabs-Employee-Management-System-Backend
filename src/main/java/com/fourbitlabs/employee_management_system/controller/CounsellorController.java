@@ -1,7 +1,9 @@
 package com.fourbitlabs.employee_management_system.controller;
 
 import com.fourbitlabs.employee_management_system.dto.request.CounsellorRequestDto;
+import com.fourbitlabs.employee_management_system.dto.request.StudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.CounsellorResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
 import com.fourbitlabs.employee_management_system.service.CounsellorService;
 import jakarta.validation.Valid;
@@ -22,5 +24,11 @@ public class CounsellorController {
         CounsellorResponseDto counsellorResponseDto = counsellorService.createCounsellor(counsellorRequestDto);
         ApiResponse<?> apiResponse = new ApiResponse<>(201, "Counsellor created", counsellorResponseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+    }
+    @PostMapping("/student")
+    public ResponseEntity<?> addStudent(@RequestBody StudentRequestDto studentRequestDto){
+        StudentResponseDto studentResponseDto = counsellorService.createStudent(studentRequestDto);
+        ApiResponse<?> apiResponse = new ApiResponse<>(201, "Student added!", studentRequestDto);
+        return ResponseEntity.status(201).body(apiResponse);
     }
 }

@@ -1,14 +1,19 @@
 package com.fourbitlabs.employee_management_system.service;
 
 import com.fourbitlabs.employee_management_system.dto.request.CounsellorRequestDto;
+import com.fourbitlabs.employee_management_system.dto.request.StudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.CounsellorResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.entity.CounsellorProfile;
+import com.fourbitlabs.employee_management_system.entity.Student;
 import com.fourbitlabs.employee_management_system.entity.User;
 import com.fourbitlabs.employee_management_system.enums.Role;
+import com.fourbitlabs.employee_management_system.enums.StudentStatus;
 import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.CounsellorProfileRepository;
+import com.fourbitlabs.employee_management_system.repository.StudentRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +29,9 @@ public class CounsellorServiceImpl implements CounsellorService {
 
     @Autowired
     private CounsellorProfileRepository counsellorProfileRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Override
     public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto) {
@@ -53,6 +61,40 @@ public class CounsellorServiceImpl implements CounsellorService {
         CounsellorProfile savedCounsellorProfile = counsellorProfileRepository.save(counsellorProfile);
 
         return mapToResponseDto(savedUser, savedCounsellorProfile);
+    }
+
+    @Override
+    public StudentResponseDto createStudent(StudentRequestDto studentRequestDto) {
+        if (studentRepository.existsByEmail(studentRequestDto.getEmail())) {
+            throw new DuplicateResourceException("A student with email '" + studentRequestDto.getEmail() + "' already exists");
+        }
+
+        CounsellorProfile counsellorProfile = counsellorProfileRepository.findById(studentRequestDto.getCounsellorId())
+                .orElseThrow(() -> new ResourceNotFoundException("A counsellor not found with this id: "+studentRequestDto.getCounsellorId()));
+
+        Student student = new Student();
+        student.setName(studentRequestDto.getName());
+        student.setEmail(studentRequestDto.getEmail());
+        student.setPhone(studentRequestDto.getPhone());
+        student.setStatus(StudentStatus.ACTIVE);
+        student.setJoiningDate(studentRequestDto.getJoiningDate());
+        student.setCounsellor(counsellorProfile);
+        Student savedStudent = studentRepository.save(student);
+
+        return getStudentResponseDto(savedStudent);
+    }
+
+    @NotNull
+    private static StudentResponseDto getStudentResponseDto(Student savedStudent) {
+        StudentResponseDto studentResponseDto = new StudentResponseDto();
+        studentResponseDto.setId(savedStudent.getId());
+        studentResponseDto.setName(savedStudent.getName());
+        studentResponseDto.setEmail(savedStudent.getEmail());
+        studentResponseDto.setPhone(savedStudent.getPhone());
+        studentResponseDto.setStatus(savedStudent.getStatus());
+        studentResponseDto.setJoiningDate(savedStudent.getJoiningDate());
+        studentResponseDto.setCounsellorId(savedStudent.getCounsellor().getId());
+        return studentResponseDto;
     }
 
     @NotNull
