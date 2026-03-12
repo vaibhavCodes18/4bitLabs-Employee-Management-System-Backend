@@ -2,6 +2,7 @@ package com.fourbitlabs.employee_management_system.controller;
 
 import com.fourbitlabs.employee_management_system.dto.request.AssignStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
 import com.fourbitlabs.employee_management_system.service.interfaces.AssignmentService;
 import jakarta.validation.Valid;
@@ -38,6 +39,13 @@ public class AssignmentController {
     public ResponseEntity<?> assignStudentToBatch(@Valid @RequestBody AssignStudentRequestDto studentRequestDto){
         AssignmentResponseDto assignmentResponseDto = assignmentService.assignStudent(studentRequestDto);
         ApiResponse<?> apiResponse = new ApiResponse<>(201, "Student assigned!", assignmentResponseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+    }
+
+    @PutMapping("/transfer")
+    public ResponseEntity<?> transferBatch(@Valid @RequestBody AssignStudentRequestDto studentRequestDto){
+        AssignmentTransferBatchResponseDto assignmentResponseDto = assignmentService.transferBatch(studentRequestDto);
+        ApiResponse<?> apiResponse = new ApiResponse<>(200, "Batch transferred!", assignmentResponseDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 }

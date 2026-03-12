@@ -2,10 +2,12 @@ package com.fourbitlabs.employee_management_system.service.impl;
 
 import com.fourbitlabs.employee_management_system.dto.request.AssignStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
 import com.fourbitlabs.employee_management_system.entity.Assignment;
 import com.fourbitlabs.employee_management_system.entity.Batch;
 import com.fourbitlabs.employee_management_system.entity.Student;
 import com.fourbitlabs.employee_management_system.enums.AssignmentStatus;
+import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.AssignmentRepository;
 import com.fourbitlabs.employee_management_system.repository.BatchRepository;
@@ -15,6 +17,9 @@ import jakarta.persistence.Access;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 @Service
 public class AssignmentServiceImpl implements AssignmentService {
@@ -42,6 +47,50 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment savedAssignment = assignmentRepository.save(assignment);
 
         return getAssignmentResponseDto(savedAssignment);
+    }
+
+    @Override
+    public AssignmentTransferBatchResponseDto transferBatch(AssignStudentRequestDto studentRequestDto) {
+        Student student = studentRepository.findById(studentRequestDto.getStudentId())
+                .orElseThrow(() -> new ResourceNotFoundException("A student with this id: "+ studentRequestDto.getStudentId() + " is not found."));
+
+        Batch newBatch = batchRepository.findById(studentRequestDto.getBatchId())
+                .orElseThrow(() -> new ResourceNotFoundException("A batch with this id: "+ studentRequestDto.getBatchId() + " is not found."));
+
+        Assignment assignment = assignmentRepository.findByStudentIdAndStatus(student.getId(), AssignmentStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+
+        if(Objects.equals(assignment.getBatch().getId(), newBatch.getId())){
+            throw new DuplicateResourceException("Student cannot be transferred to the same batch");
+        }
+
+        assignment.setStatus(AssignmentStatus.TRANSFERRED);
+
+        Assignment newAssignment = new Assignment();
+        newAssignment.setBatch(newBatch);
+        newAssignment.setStudent(student);
+        newAssignment.setStatus(AssignmentStatus.ACTIVE);
+        newAssignment.setAssignedDate(LocalDate.now());
+        Assignment newSavedAssignment = assignmentRepository.save(newAssignment);
+
+        return getAssignmentTransferBatchResponseDto(newSavedAssignment, assignment);
+    }
+
+    @NotNull
+    private static AssignmentTransferBatchResponseDto getAssignmentTransferBatchResponseDto(Assignment newSavedAssignment, Assignment assignment) {
+        AssignmentTransferBatchResponseDto assignmentTransferBatchResponseDto = new AssignmentTransferBatchResponseDto();
+
+        assignmentTransferBatchResponseDto.setId(newSavedAssignment.getId());
+        assignmentTransferBatchResponseDto.setNewBatchId(newSavedAssignment.getBatch().getId());
+        assignmentTransferBatchResponseDto.setNewBatchName(newSavedAssignment.getBatch().getName());
+        assignmentTransferBatchResponseDto.setStudentId(newSavedAssignment.getStudent().getId());
+        assignmentTransferBatchResponseDto.setStudentName(newSavedAssignment.getStudent().getName());
+        assignmentTransferBatchResponseDto.setStatus(newSavedAssignment.getStatus());
+        assignmentTransferBatchResponseDto.setAssignedDate(newSavedAssignment.getAssignedDate());
+        assignmentTransferBatchResponseDto.setUpdatedAt(newSavedAssignment.getUpdatedAt());
+        assignmentTransferBatchResponseDto.setOldBatchId(assignment.getBatch().getId());
+        assignmentTransferBatchResponseDto.setOldBatchName(assignment.getBatch().getName());
+        return assignmentTransferBatchResponseDto;
     }
 
     @NotNull
