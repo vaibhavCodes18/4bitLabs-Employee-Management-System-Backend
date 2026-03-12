@@ -112,4 +112,17 @@ public class Assignment {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "Assignment{" +
+                "id=" + id +
+                ", assignedDate=" + assignedDate +
+                ", status=" + status +
+                ", student=" + student +
+                ", batch=" + batch +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

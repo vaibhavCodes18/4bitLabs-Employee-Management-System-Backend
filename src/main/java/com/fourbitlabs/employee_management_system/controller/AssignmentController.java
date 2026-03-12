@@ -3,6 +3,7 @@ package com.fourbitlabs.employee_management_system.controller;
 import com.fourbitlabs.employee_management_system.dto.request.AssignStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.StudentCourseResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
 import com.fourbitlabs.employee_management_system.service.interfaces.AssignmentService;
@@ -54,7 +55,7 @@ public class AssignmentController {
 
     @GetMapping("/batch/{batchId}")
     public ResponseEntity<?> getAllStudentByBatch(@PathVariable Long batchId){
-        List<StudentResponseDto> allStudents = assignmentService.fetchAllStudentByBatch(batchId);
+        List<StudentCourseResponseDto> allStudents = assignmentService.fetchAllStudentByBatch(batchId);
         ApiResponse<?> apiResponse = new ApiResponse<>(200, "All students fetched!", allStudents);
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }

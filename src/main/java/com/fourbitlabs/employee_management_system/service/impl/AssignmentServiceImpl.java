@@ -3,6 +3,7 @@ package com.fourbitlabs.employee_management_system.service.impl;
 import com.fourbitlabs.employee_management_system.dto.request.AssignStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.StudentCourseResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.entity.Assignment;
 import com.fourbitlabs.employee_management_system.entity.Batch;
@@ -82,9 +83,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<StudentResponseDto> fetchAllStudentByBatch(Long batchId) {
+    public List<StudentCourseResponseDto> fetchAllStudentByBatch(Long batchId) {
         List<Student> allStudents = new ArrayList<>();
-        List<Assignment> allAssigns = assignmentRepository.findByBatchId(batchId);
+        List<Assignment> allAssigns = assignmentRepository.findByBatchIdAndStatus(batchId, AssignmentStatus.ACTIVE).stream().distinct().toList();
+        Batch batch = batchRepository.findById(batchId)
+                .orElseThrow(() -> new ResourceNotFoundException("batch not found"));
         Iterator<Assignment> iterator = allAssigns.iterator();
         while (iterator.hasNext()){
             Assignment assignment = iterator.next();
@@ -93,16 +96,18 @@ public class AssignmentServiceImpl implements AssignmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
             allStudents.add(batchStudent);
         }
-        return allAssigns.stream().map(e->{
-            StudentResponseDto studentResponseDto = new StudentResponseDto();
+        return allStudents.stream().map(e -> {
+            StudentCourseResponseDto studentResponseDto = new StudentCourseResponseDto();
             studentResponseDto.setId(e.getId());
-            studentResponseDto.setName(e.getStudent().getName());
-            studentResponseDto.setPhone(e.getStudent().getPhone());
-            studentResponseDto.setStatus(e.getStudent().getStatus());
-            studentResponseDto.setEmail(e.getStudent().getEmail());
-            studentResponseDto.setCounsellorId(e.getStudent().getCounsellor().getId());
-            studentResponseDto.setJoiningDate(e.getStudent().getJoiningDate());
-
+            studentResponseDto.setName(e.getName());
+            studentResponseDto.setPhone(e.getPhone());
+            studentResponseDto.setStatus(e.getStatus());
+            studentResponseDto.setEmail(e.getEmail());
+            studentResponseDto.setCounsellorId(e.getCounsellor().getId());
+            studentResponseDto.setJoiningDate(e.getJoiningDate());
+            studentResponseDto.setBatchId(batch.getId());
+            studentResponseDto.setBatchName(batch.getName());
+            studentResponseDto.setCourse(batch.getCourse());
             return studentResponseDto;
         }).toList().stream().distinct().toList();
     }
