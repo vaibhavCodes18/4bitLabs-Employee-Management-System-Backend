@@ -9,14 +9,14 @@ public class BatchProgressResponseDto {
     private Integer sessionNumber;
     private String topicCovered;
     private Long batchId;
-    private String trainerName;
+    private Long trainerId;
     private LocalDateTime createdAt;
 
     public BatchProgressResponseDto() {
     }
 
     public BatchProgressResponseDto(Long id, String title, String description, Integer sessionNumber,
-                                    String topicCovered, Long batchId, String trainerName,
+                                    String topicCovered, Long batchId, Long trainerId,
                                     LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
@@ -24,7 +24,7 @@ public class BatchProgressResponseDto {
         this.sessionNumber = sessionNumber;
         this.topicCovered = topicCovered;
         this.batchId = batchId;
-        this.trainerName = trainerName;
+        this.trainerId = trainerId;
         this.createdAt = createdAt;
     }
 
@@ -76,12 +76,12 @@ public class BatchProgressResponseDto {
         this.batchId = batchId;
     }
 
-    public String getTrainerName() {
-        return trainerName;
+    public Long getTrainerId() {
+        return trainerId;
     }
 
-    public void setTrainerName(String trainerName) {
-        this.trainerName = trainerName;
+    public void setTrainerName(Long trainerId) {
+        this.trainerId = trainerId;
     }
 
     public LocalDateTime getCreatedAt() {

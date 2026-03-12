@@ -5,4 +5,5 @@ import com.fourbitlabs.employee_management_system.dto.response.TrainerResponseDt
 
 public interface TrainerService {
     TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto);
+    addBatchProgress();
 }
