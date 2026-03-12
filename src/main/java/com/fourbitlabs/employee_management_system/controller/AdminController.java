@@ -9,10 +9,10 @@ import com.fourbitlabs.employee_management_system.dto.response.AnalystResponseDt
 import com.fourbitlabs.employee_management_system.dto.response.CounsellorResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.TrainerResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
-import com.fourbitlabs.employee_management_system.service.AdminService;
-import com.fourbitlabs.employee_management_system.service.AnalystService;
-import com.fourbitlabs.employee_management_system.service.CounsellorService;
-import com.fourbitlabs.employee_management_system.service.TrainerService;
+import com.fourbitlabs.employee_management_system.service.interfaces.AdminService;
+import com.fourbitlabs.employee_management_system.service.interfaces.AnalystService;
+import com.fourbitlabs.employee_management_system.service.interfaces.CounsellorService;
+import com.fourbitlabs.employee_management_system.service.interfaces.TrainerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

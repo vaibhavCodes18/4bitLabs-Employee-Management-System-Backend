@@ -3,7 +3,7 @@ package com.fourbitlabs.employee_management_system.controller;
 import com.fourbitlabs.employee_management_system.dto.request.BatchRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.BatchResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
-import com.fourbitlabs.employee_management_system.service.BatchService;
+import com.fourbitlabs.employee_management_system.service.interfaces.BatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
