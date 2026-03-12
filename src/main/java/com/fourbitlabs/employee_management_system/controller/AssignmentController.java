@@ -3,6 +3,7 @@ package com.fourbitlabs.employee_management_system.controller;
 import com.fourbitlabs.employee_management_system.dto.request.AssignStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
 import com.fourbitlabs.employee_management_system.service.interfaces.AssignmentService;
 import jakarta.validation.Valid;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * AssignmentController handles student-to-batch assignment operations.
@@ -46,6 +49,13 @@ public class AssignmentController {
     public ResponseEntity<?> transferBatch(@Valid @RequestBody AssignStudentRequestDto studentRequestDto){
         AssignmentTransferBatchResponseDto assignmentResponseDto = assignmentService.transferBatch(studentRequestDto);
         ApiResponse<?> apiResponse = new ApiResponse<>(200, "Batch transferred!", assignmentResponseDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
+
+    @GetMapping("/batch/{batchId}")
+    public ResponseEntity<?> getAllStudentByBatch(@PathVariable Long batchId){
+        List<StudentResponseDto> allStudents = assignmentService.fetchAllStudentByBatch(batchId);
+        ApiResponse<?> apiResponse = new ApiResponse<>(200, "All students fetched!", allStudents);
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }

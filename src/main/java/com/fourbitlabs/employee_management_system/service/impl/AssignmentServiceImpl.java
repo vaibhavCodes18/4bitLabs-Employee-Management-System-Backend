@@ -3,6 +3,7 @@ package com.fourbitlabs.employee_management_system.service.impl;
 import com.fourbitlabs.employee_management_system.dto.request.AssignStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
+import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.entity.Assignment;
 import com.fourbitlabs.employee_management_system.entity.Batch;
 import com.fourbitlabs.employee_management_system.entity.Student;
@@ -19,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -29,6 +33,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     private StudentRepository studentRepository;
     @Autowired
     private BatchRepository batchRepository;
+
 
     @Override
     public AssignmentResponseDto assignStudent(AssignStudentRequestDto studentRequestDto) {
@@ -74,6 +79,32 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment newSavedAssignment = assignmentRepository.save(newAssignment);
 
         return getAssignmentTransferBatchResponseDto(newSavedAssignment, assignment);
+    }
+
+    @Override
+    public List<StudentResponseDto> fetchAllStudentByBatch(Long batchId) {
+        List<Student> allStudents = new ArrayList<>();
+        List<Assignment> allAssigns = assignmentRepository.findByBatchId(batchId);
+        Iterator<Assignment> iterator = allAssigns.iterator();
+        while (iterator.hasNext()){
+            Assignment assignment = iterator.next();
+            Long studentId = assignment.getStudent().getId();
+            Student batchStudent = studentRepository.findById(studentId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+            allStudents.add(batchStudent);
+        }
+        return allAssigns.stream().map(e->{
+            StudentResponseDto studentResponseDto = new StudentResponseDto();
+            studentResponseDto.setId(e.getId());
+            studentResponseDto.setName(e.getStudent().getName());
+            studentResponseDto.setPhone(e.getStudent().getPhone());
+            studentResponseDto.setStatus(e.getStudent().getStatus());
+            studentResponseDto.setEmail(e.getStudent().getEmail());
+            studentResponseDto.setCounsellorId(e.getStudent().getCounsellor().getId());
+            studentResponseDto.setJoiningDate(e.getStudent().getJoiningDate());
+
+            return studentResponseDto;
+        }).toList().stream().distinct().toList();
     }
 
     @NotNull
