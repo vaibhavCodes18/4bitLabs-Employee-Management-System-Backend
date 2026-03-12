@@ -1,26 +1,25 @@
 package com.fourbitlabs.employee_management_system.controller;
 
-import com.fourbitlabs.employee_management_system.dto.request.TrainerRequestDto;
-import com.fourbitlabs.employee_management_system.dto.response.TrainerResponseDto;
-import com.fourbitlabs.employee_management_system.response.ApiResponse;
-import com.fourbitlabs.employee_management_system.service.TrainerService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * TrainerController handles all trainer-related operations.
+ * 
+ * The trainer is responsible for:
+ * - Managing batch progress (add/view progress for assigned batches)
+ * 
+ * Note: Trainer creation is handled by the AdminController.
+ * Note: Batch progress service methods are not yet implemented.
+ *       Endpoints will be added here once the service layer supports them.
+ * 
+ * Planned endpoints:
+ * - POST /api/trainer/batch-progress     → Add batch progress
+ * - GET  /api/trainer/batch-progress/{batchId} → View batch progress by batch ID
+ */
 @RestController
-@RequestMapping("/api/users/trainer")
+@RequestMapping("/api/trainer")
 public class TrainerController {
 
-    @Autowired
-    private TrainerService trainerService;
-
-    @PostMapping
-    public ResponseEntity<?> saveTrainer(@Valid @RequestBody TrainerRequestDto trainerRequestDto) {
-        TrainerResponseDto trainerResponseDto = trainerService.createTrainer(trainerRequestDto);
-        ApiResponse<?> apiResponse = new ApiResponse<>(201, "Trainer created", trainerResponseDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
-    }
+    // Batch progress endpoints will be added here once
+    // the corresponding service methods are available.
 }
