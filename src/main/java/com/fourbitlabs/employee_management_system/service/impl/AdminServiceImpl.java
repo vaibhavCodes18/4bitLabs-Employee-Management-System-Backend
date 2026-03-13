@@ -24,6 +24,9 @@ public class AdminServiceImpl implements AdminService {
         if (userRepository.existsByEmail(createAdminRequestDto.getEmail())) {
             throw new DuplicateResourceException("A user with email '" + createAdminRequestDto.getEmail() + "' already exists");
         }
+        if(userRepository.existsByRole(Role.ADMIN)){
+            throw new DuplicateResourceException("An admin already exists");
+        }
 
         User user = new User();
         user.setName(createAdminRequestDto.getName());
