@@ -8,6 +8,12 @@ import com.fourbitlabs.employee_management_system.entity.TrainerProfile;
 import com.fourbitlabs.employee_management_system.entity.User;
 import com.fourbitlabs.employee_management_system.enums.Role;
 import com.fourbitlabs.employee_management_system.enums.UserStatus;
+import com.fourbitlabs.employee_management_system.dto.request.BatchProgressRequestDto;
+import com.fourbitlabs.employee_management_system.dto.response.BatchProgressResponseDto;
+import com.fourbitlabs.employee_management_system.entity.BatchProgress;
+import com.fourbitlabs.employee_management_system.entity.Batch;
+import com.fourbitlabs.employee_management_system.repository.BatchProgressRepository;
+import com.fourbitlabs.employee_management_system.repository.BatchRepository;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.TrainerProfileRepository;
@@ -17,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 @Service
 public class TrainerServiceImpl implements TrainerService {
 
@@ -26,6 +32,12 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Autowired
     private TrainerProfileRepository trainerProfileRepository;
+
+    @Autowired
+    private BatchRepository batchRepository;
+
+    @Autowired
+    private BatchProgressRepository batchProgressRepository;
 
     @Override
     public TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto) {
@@ -75,5 +87,50 @@ public class TrainerServiceImpl implements TrainerService {
         trainerResponseDto.setJoiningDate(savedTrainerProfile.getJoiningDate());
         trainerResponseDto.setSalary(savedTrainerProfile.getSalary());
         return trainerResponseDto;
+    }
+
+    @Override
+    public BatchProgressResponseDto addBatchProgress(BatchProgressRequestDto batchProgressRequestDto) {
+        Batch batch = batchRepository.findById(batchProgressRequestDto.getBatchId())
+                .orElseThrow(() -> new ResourceNotFoundException("Batch not found with id: " + batchProgressRequestDto.getBatchId()));
+
+        TrainerProfile trainerProfile = trainerProfileRepository.findById(batchProgressRequestDto.getTrainerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + batchProgressRequestDto.getTrainerId()));
+
+        BatchProgress batchProgress = new BatchProgress();
+        batchProgress.setTitle(batchProgressRequestDto.getTitle());
+        batchProgress.setDescription(batchProgressRequestDto.getDescription());
+        batchProgress.setSessionNumber(batchProgressRequestDto.getSessionNumber());
+        batchProgress.setTopicCovered(batchProgressRequestDto.getTopicCovered());
+        batchProgress.setBatch(batch);
+        batchProgress.setTrainer(trainerProfile);
+
+        BatchProgress savedProgress = batchProgressRepository.save(batchProgress);
+        return mapToBatchProgressResponseDto(savedProgress);
+    }
+
+    @Override
+    public List<BatchProgressResponseDto> getBatchProgress(Long batchId) {
+        List<BatchProgress> batchProgressList = batchProgressRepository.findByBatchId(batchId);
+        return batchProgressList.stream()
+                .map(this::mapToBatchProgressResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    private BatchProgressResponseDto mapToBatchProgressResponseDto(BatchProgress batchProgress) {
+        BatchProgressResponseDto dto = new BatchProgressResponseDto();
+        dto.setId(batchProgress.getId());
+        dto.setTitle(batchProgress.getTitle());
+        dto.setDescription(batchProgress.getDescription());
+        dto.setSessionNumber(batchProgress.getSessionNumber());
+        dto.setTopicCovered(batchProgress.getTopicCovered());
+        if (batchProgress.getBatch() != null) {
+            dto.setBatchId(batchProgress.getBatch().getId());
+        }
+        if (batchProgress.getTrainer() != null) {
+            dto.setTrainerName(batchProgress.getTrainer().getId());
+        }
+        dto.setCreatedAt(batchProgress.getCreatedAt());
+        return dto;
     }
 }

@@ -1,6 +1,16 @@
 package com.fourbitlabs.employee_management_system.controller;
 
+import com.fourbitlabs.employee_management_system.dto.request.BatchProgressRequestDto;
+import com.fourbitlabs.employee_management_system.dto.response.BatchProgressResponseDto;
+import com.fourbitlabs.employee_management_system.response.ApiResponse;
+import com.fourbitlabs.employee_management_system.service.interfaces.TrainerService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * TrainerController handles all trainer-related operations.
@@ -20,6 +30,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/trainer")
 public class TrainerController {
 
-    // Batch progress endpoints will be added here once
-    // the corresponding service methods are available.
+    @Autowired
+    private TrainerService trainerService;
+
+    @PostMapping("/batch-progress")
+    public ResponseEntity<ApiResponse<BatchProgressResponseDto>> addBatchProgress(@Valid @RequestBody BatchProgressRequestDto batchProgressRequestDto) {
+        BatchProgressResponseDto responseDto = trainerService.addBatchProgress(batchProgressRequestDto);
+        ApiResponse<BatchProgressResponseDto> response = new ApiResponse<>(201, "Batch progress added successfully", responseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/batch-progress/{batchId}")
+    public ResponseEntity<ApiResponse<List<BatchProgressResponseDto>>> getBatchProgress(@PathVariable Long batchId) {
+        List<BatchProgressResponseDto> progressList = trainerService.getBatchProgress(batchId);
+        ApiResponse<List<BatchProgressResponseDto>> response = new ApiResponse<>(200, "Batch progress fetched successfully", progressList);
+        return ResponseEntity.ok(response);
+    }
 }
