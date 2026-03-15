@@ -10,6 +10,7 @@ import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     @Override
     public AdminResponseDto createAdmin(AdminRequestDto createAdminRequestDto) {
@@ -31,7 +34,7 @@ public class AdminServiceImpl implements AdminService {
         User user = new User();
         user.setName(createAdminRequestDto.getName());
         user.setEmail(createAdminRequestDto.getEmail());
-        user.setPassword(createAdminRequestDto.getPassword());
+        user.setPassword(passwordEncoder.encode(createAdminRequestDto.getPassword()));
         user.setPhone(createAdminRequestDto.getPhone());
         user.setRole(Role.ADMIN);
         user.setStatus(UserStatus.ACTIVE);
