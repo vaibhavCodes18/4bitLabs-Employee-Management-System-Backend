@@ -14,6 +14,7 @@ import com.fourbitlabs.employee_management_system.repository.AnalystProfileRepos
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class AnalystServiceImpl implements AnalystService {
 
     @Autowired
     private AnalystProfileRepository analystProfileRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public AnalystResponseDto createAnalyst(AnalystRequestDto analystRequestDto) {
@@ -41,7 +45,7 @@ public class AnalystServiceImpl implements AnalystService {
         user.setName(analystRequestDto.getName());
         user.setEmail(analystRequestDto.getEmail());
         user.setPhone(analystRequestDto.getPhone());
-        user.setPassword(analystRequestDto.getPassword());
+        user.setPassword(passwordEncoder.encode(analystRequestDto.getPassword()));
         user.setRole(Role.ANALYST);
         user.setStatus(UserStatus.ACTIVE);
         user.setCreatedByAdmin(admin);

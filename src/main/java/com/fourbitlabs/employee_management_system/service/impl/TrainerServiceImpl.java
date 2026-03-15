@@ -20,6 +20,7 @@ import com.fourbitlabs.employee_management_system.repository.TrainerProfileRepos
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,9 @@ public class TrainerServiceImpl implements TrainerService {
     @Autowired
     private BatchProgressRepository batchProgressRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public TrainerResponseDto createTrainer(TrainerRequestDto trainerRequestDto) {
         // Check for duplicate email
@@ -52,7 +56,7 @@ public class TrainerServiceImpl implements TrainerService {
         user.setName(trainerRequestDto.getName());
         user.setEmail(trainerRequestDto.getEmail());
         user.setPhone(trainerRequestDto.getPhone());
-        user.setPassword(trainerRequestDto.getPassword());
+        user.setPassword(passwordEncoder.encode(trainerRequestDto.getPassword()));
         user.setRole(Role.TRAINER);
         user.setStatus(UserStatus.ACTIVE);
         user.setCreatedByAdmin(admin);

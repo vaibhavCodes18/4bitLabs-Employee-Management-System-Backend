@@ -11,6 +11,7 @@ import com.fourbitlabs.employee_management_system.exception.DuplicateResourceExc
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +20,8 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private UserRepository userRepository;
 
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public AdminResponseDto createAdmin(AdminRequestDto createAdminRequestDto) {

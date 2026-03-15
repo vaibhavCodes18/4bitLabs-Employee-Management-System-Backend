@@ -19,6 +19,7 @@ import com.fourbitlabs.employee_management_system.repository.StudentRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +36,9 @@ public class CounsellorServiceImpl implements CounsellorService {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto) {
         // Check for duplicate email
@@ -48,7 +52,7 @@ public class CounsellorServiceImpl implements CounsellorService {
         user.setName(counsellorRequestDto.getName());
         user.setEmail(counsellorRequestDto.getEmail());
         user.setPhone(counsellorRequestDto.getPhone());
-        user.setPassword(counsellorRequestDto.getPassword());
+        user.setPassword(passwordEncoder.encode(counsellorRequestDto.getPassword()));
         user.setRole(Role.COUNSELLOR);
         user.setStatus(UserStatus.ACTIVE);
         user.setCreatedByAdmin(admin);
