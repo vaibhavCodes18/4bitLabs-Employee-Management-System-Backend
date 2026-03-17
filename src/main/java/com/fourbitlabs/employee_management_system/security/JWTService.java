@@ -1,5 +1,6 @@
 package com.fourbitlabs.employee_management_system.security;
 
+import com.fourbitlabs.employee_management_system.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -22,11 +23,12 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
-    public String generateToken(String email){
+    public String generateToken(Long userId, String email, String role){
         Map<String, Objects> claims = new HashMap<>();
         return Jwts.builder()
-                .claims(claims)
                 .subject(email)
+                .claim("userId", userId)
+                .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30))
                 .signWith(getKey())
@@ -38,8 +40,12 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token){
+    public String extractEmail(String token){
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     public Date extractExpiration(String token) {
@@ -48,9 +54,9 @@ public class JWTService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
 
-        final String username = extractUsername(token);
+        final String email = extractEmail(token);
 
-        return username.equals(userDetails.getUsername())
+        return email.equals(userDetails.getUsername())
                 && !isTokenExpired(token);
     }
 
@@ -62,6 +68,7 @@ public class JWTService {
         final Claims claims = extractAllClaims(token);
         return resolver.apply(claims);
     }
+
 
     private Claims extractAllClaims(String token) {
 

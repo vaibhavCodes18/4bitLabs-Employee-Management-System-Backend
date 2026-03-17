@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Users credentials are invalid.");
         }
 
-        String token = jwtService.generateToken(loginRequestDto.getEmail());
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
 
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setUserId(user.getId());

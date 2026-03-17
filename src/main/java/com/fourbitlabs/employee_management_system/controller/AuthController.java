@@ -20,10 +20,10 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/admin/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto){
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
-        ApiResponse<?> apiResponse = new ApiResponse<>(200, "Admin loggedin", loginResponseDto);
+        ApiResponse<?> apiResponse = new ApiResponse<>(200, "Login successful", loginResponseDto);
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }
