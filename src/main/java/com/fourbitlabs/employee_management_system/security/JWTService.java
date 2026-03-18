@@ -23,14 +23,24 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
-    public String generateToken(Long userId, String email, String role){
-        Map<String, Objects> claims = new HashMap<>();
+    public String generateAccessToken(Long userId, String email, String role){
         return Jwts.builder()
                 .subject(email)
                 .claim("userId", userId)
                 .claim("role", role)
+                .claim("type", "ACCESS")
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 30))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 minutes
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("type", "REFRESH")
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // 7 days
                 .signWith(getKey())
                 .compact();
     }
@@ -48,6 +58,10 @@ public class JWTService {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
+    public String extractType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
+    }
+
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -55,8 +69,19 @@ public class JWTService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
 
         final String email = extractEmail(token);
+        final String type = extractType(token);
 
         return email.equals(userDetails.getUsername())
+                && "ACCESS".equals(type)
+                && !isTokenExpired(token);
+    }
+
+    public boolean isRefreshTokenValid(String token, String userEmail) {
+        final String email = extractEmail(token);
+        final String type = extractType(token);
+
+        return email.equals(userEmail)
+                && "REFRESH".equals(type)
                 && !isTokenExpired(token);
     }
 
