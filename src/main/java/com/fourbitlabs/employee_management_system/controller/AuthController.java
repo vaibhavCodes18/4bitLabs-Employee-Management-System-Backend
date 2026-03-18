@@ -6,6 +6,7 @@ import com.fourbitlabs.employee_management_system.dto.request.LoginRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.LoginResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
 import com.fourbitlabs.employee_management_system.service.interfaces.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,6 @@ public class AuthController {
         // Setup HttpOnly Cookie for Refresh Token
         Cookie cookie = new Cookie("refreshToken", loginResponseDto.getRefreshToken());
         cookie.setHttpOnly(true);
-        cookie.setPath("/api/auth/refresh");
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days in seconds
         cookie.setSecure(false); // set to true if using HTTPS usually
         response.addCookie(cookie);
@@ -53,12 +53,31 @@ public class AuthController {
         // Setup HttpOnly Cookie for the exact new Refresh Token
         Cookie cookie = new Cookie("refreshToken", responseDto.getRefreshToken());
         cookie.setHttpOnly(true);
-        cookie.setPath("/api/auth/refresh");
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days in seconds
         cookie.setSecure(false);
         response.addCookie(cookie);
 
         ApiResponse<?> apiResponse = new ApiResponse<>(200, "Token refreshed successfully", responseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
+
+    @PostMapping("/auth/logout")
+    public ResponseEntity<?> logout(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        if (refreshToken != null && !refreshToken.trim().isEmpty()) {
+            authService.logout(refreshToken);
+        }
+
+        // Clear the refresh token cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        cookie.setSecure(false);
+        response.addCookie(cookie);
+
+        ApiResponse<?> apiResponse = new ApiResponse<>(200, "Logout successful", null);
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 }

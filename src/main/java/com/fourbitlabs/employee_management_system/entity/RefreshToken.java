@@ -2,6 +2,8 @@ package com.fourbitlabs.employee_management_system.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "refresh_tokens")
 public class RefreshToken {
@@ -17,12 +19,20 @@ public class RefreshToken {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private boolean isRevoked = false;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     public RefreshToken() {
     }
 
     public RefreshToken(String token, User user) {
         this.token = token;
         this.user = user;
+        this.isRevoked = false;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -43,5 +53,21 @@ public class RefreshToken {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isRevoked() {
+        return isRevoked;
+    }
+
+    public void setRevoked(boolean revoked) {
+        isRevoked = revoked;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

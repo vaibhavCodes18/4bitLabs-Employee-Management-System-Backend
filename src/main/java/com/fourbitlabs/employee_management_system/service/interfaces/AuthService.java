@@ -9,4 +9,5 @@ import com.fourbitlabs.employee_management_system.dto.response.TokenRefreshRespo
 public interface AuthService {
     LoginResponseDto login(LoginRequestDto loginRequestDto);
     TokenRefreshResponseDto refreshToken(String refreshToken);
+    void logout(String refreshToken);
 }

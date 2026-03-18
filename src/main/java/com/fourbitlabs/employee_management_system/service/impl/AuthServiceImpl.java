@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private RefreshTokenRepository refreshTokenRepository;
 
     @Override
+    @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
 
         User user = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("Users with this email is invalid."));
@@ -41,6 +43,9 @@ public class AuthServiceImpl implements AuthService {
         if (!authentication.isAuthenticated()) {
             throw new BadCredentialsException("Users credentials are invalid.");
         }
+
+        // Revoke all previous tokens for this user upon new login
+        refreshTokenRepository.revokeAllByUser(user);
 
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
         String refreshTokenString = jwtService.generateRefreshToken(user.getEmail());
@@ -61,11 +66,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public TokenRefreshResponseDto refreshToken(String refreshToken) {
         
         try {
             RefreshToken dbToken = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new BadCredentialsException("Refresh token not found in database"));
+
+            if (dbToken.isRevoked()) {
+                throw new BadCredentialsException("Refresh token has been revoked.");
+            }
 
             String email = jwtService.extractEmail(refreshToken);
 
@@ -74,7 +84,8 @@ public class AuthServiceImpl implements AuthService {
                 
                 // Extra security check: does the DB token actually match the user inside the payload?
                 if (!dbToken.getUser().getId().equals(user.getId())) {
-                    refreshTokenRepository.delete(dbToken);
+                    dbToken.setRevoked(true);
+                    refreshTokenRepository.save(dbToken);
                     throw new BadCredentialsException("Token compromised");
                 }
                 
@@ -82,13 +93,16 @@ public class AuthServiceImpl implements AuthService {
                     String newAccessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole().name());
                     String newRefreshTokenString = jwtService.generateRefreshToken(user.getEmail());
                     
-                    refreshTokenRepository.delete(dbToken);
+                    dbToken.setRevoked(true);
+                    refreshTokenRepository.save(dbToken);
+
                     RefreshToken newRefreshToken = new RefreshToken(newRefreshTokenString, user);
                     refreshTokenRepository.save(newRefreshToken);
 
                     return new TokenRefreshResponseDto(newAccessToken, newRefreshTokenString);
                 } else {
-                    refreshTokenRepository.delete(dbToken);
+                    dbToken.setRevoked(true);
+                    refreshTokenRepository.save(dbToken);
                 }
             }
         } catch (Exception e) {
@@ -96,5 +110,16 @@ public class AuthServiceImpl implements AuthService {
         }
         
         throw new BadCredentialsException("Invalid refresh token");
+    }
+
+    @Override
+    @Transactional
+    public void logout(String refreshToken) {
+        if (refreshToken != null) {
+
+            RefreshToken token = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+            token.setRevoked(true);
+            refreshTokenRepository.save(token);
+        }
     }
 }

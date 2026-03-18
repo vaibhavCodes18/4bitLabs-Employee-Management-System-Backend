@@ -4,6 +4,8 @@ import com.fourbitlabs.employee_management_system.service.interfaces.*;
 
 import com.fourbitlabs.employee_management_system.dto.request.CounsellorRequestDto;
 import com.fourbitlabs.employee_management_system.dto.request.StudentRequestDto;
+import com.fourbitlabs.employee_management_system.dto.request.UpdateCounsellorRequestDto;
+import com.fourbitlabs.employee_management_system.dto.request.UpdateStudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.CounsellorResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.entity.CounsellorProfile;
@@ -21,8 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CounsellorServiceImpl implements CounsellorService {
@@ -38,6 +42,10 @@ public class CounsellorServiceImpl implements CounsellorService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    // ========================
+    // Counsellor CRUD
+    // ========================
 
     @Override
     public CounsellorResponseDto createCounsellor(CounsellorRequestDto counsellorRequestDto) {
@@ -70,6 +78,88 @@ public class CounsellorServiceImpl implements CounsellorService {
     }
 
     @Override
+    public List<CounsellorResponseDto> getAllCounsellors() {
+        List<User> counsellors = userRepository.findByRole(Role.COUNSELLOR);
+        return counsellors.stream()
+                .map(user -> {
+                    CounsellorProfile profile = counsellorProfileRepository.findByUserId(user.getId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Counsellor profile not found for user id: " + user.getId()));
+                    return mapToResponseDto(user, profile);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CounsellorResponseDto getCounsellorById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Counsellor not found with id: " + userId));
+
+        if (user.getRole() != Role.COUNSELLOR) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not a counsellor");
+        }
+
+        CounsellorProfile profile = counsellorProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Counsellor profile not found for user id: " + userId));
+
+        return mapToResponseDto(user, profile);
+    }
+
+    @Override
+    @Transactional
+    public CounsellorResponseDto updateCounsellor(Long userId, UpdateCounsellorRequestDto updateDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Counsellor not found with id: " + userId));
+
+        if (user.getRole() != Role.COUNSELLOR) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not a counsellor");
+        }
+
+        CounsellorProfile profile = counsellorProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Counsellor profile not found for user id: " + userId));
+
+        // Update User fields (only non-null values)
+        if (updateDto.getName() != null) {
+            user.setName(updateDto.getName());
+        }
+        if (updateDto.getPhone() != null) {
+            user.setPhone(updateDto.getPhone());
+        }
+        userRepository.save(user);
+
+        // Update CounsellorProfile fields (only non-null values)
+        if (updateDto.getDepartment() != null) {
+            profile.setDepartment(updateDto.getDepartment());
+        }
+        if (updateDto.getJoiningDate() != null) {
+            profile.setJoiningDate(updateDto.getJoiningDate());
+        }
+        if (updateDto.getSalary() != null) {
+            profile.setSalary(updateDto.getSalary());
+        }
+        counsellorProfileRepository.save(profile);
+
+        return mapToResponseDto(user, profile);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCounsellor(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Counsellor not found with id: " + userId));
+
+        if (user.getRole() != Role.COUNSELLOR) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not a counsellor");
+        }
+
+        user.setStatus(UserStatus.INACTIVE);
+        userRepository.save(user);
+    }
+
+    // ========================
+    // Student CRUD
+    // ========================
+
+    @Override
     public StudentResponseDto createStudent(StudentRequestDto studentRequestDto) {
         if (studentRepository.existsByEmail(studentRequestDto.getEmail())) {
             throw new DuplicateResourceException("A student with email '" + studentRequestDto.getEmail() + "' already exists");
@@ -90,6 +180,57 @@ public class CounsellorServiceImpl implements CounsellorService {
 
         return getStudentResponseDto(savedStudent);
     }
+
+    @Override
+    public List<StudentResponseDto> getAllStudents() {
+        List<Student> students = studentRepository.findAll();
+        return students.stream()
+                .map(this::getStudentResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public StudentResponseDto getStudentById(Long studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + studentId));
+
+        return getStudentResponseDto(student);
+    }
+
+    @Override
+    @Transactional
+    public StudentResponseDto updateStudent(Long studentId, UpdateStudentRequestDto updateDto) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + studentId));
+
+        // Update Student fields (only non-null values)
+        if (updateDto.getName() != null) {
+            student.setName(updateDto.getName());
+        }
+        if (updateDto.getPhone() != null) {
+            student.setPhone(updateDto.getPhone());
+        }
+        if (updateDto.getJoiningDate() != null) {
+            student.setJoiningDate(updateDto.getJoiningDate());
+        }
+        studentRepository.save(student);
+
+        return getStudentResponseDto(student);
+    }
+
+    @Override
+    @Transactional
+    public void deleteStudent(Long studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + studentId));
+
+        student.setStatus(StudentStatus.DROPPED);
+        studentRepository.save(student);
+    }
+
+    // ========================
+    // Mapping Helpers
+    // ========================
 
     @NotNull
     private StudentResponseDto getStudentResponseDto(Student savedStudent) {

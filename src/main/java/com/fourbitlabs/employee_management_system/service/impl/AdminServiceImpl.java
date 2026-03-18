@@ -10,7 +10,6 @@ import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +26,10 @@ public class AdminServiceImpl implements AdminService {
     public AdminResponseDto createAdmin(AdminRequestDto createAdminRequestDto) {
         // Check for duplicate email
         if (userRepository.existsByEmail(createAdminRequestDto.getEmail())) {
-            throw new DuplicateResourceException("A user with email '" + createAdminRequestDto.getEmail() + "' already exists");
+            throw new DuplicateResourceException(
+                    "A user with email '" + createAdminRequestDto.getEmail() + "' already exists");
         }
-        if(userRepository.existsByRole(Role.ADMIN)){
+        if (userRepository.existsByRole(Role.ADMIN)) {
             throw new DuplicateResourceException("An admin already exists");
         }
 

@@ -3,6 +3,7 @@ package com.fourbitlabs.employee_management_system.service.impl;
 import com.fourbitlabs.employee_management_system.service.interfaces.*;
 
 import com.fourbitlabs.employee_management_system.dto.request.TrainerRequestDto;
+import com.fourbitlabs.employee_management_system.dto.request.UpdateTrainerRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.TrainerResponseDto;
 import com.fourbitlabs.employee_management_system.entity.TrainerProfile;
 import com.fourbitlabs.employee_management_system.entity.User;
@@ -22,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class TrainerServiceImpl implements TrainerService {
 
@@ -73,6 +76,90 @@ public class TrainerServiceImpl implements TrainerService {
         TrainerProfile savedTrainerProfile = trainerProfileRepository.save(trainerProfile);
 
         return mapToResponseDto(savedUser, savedTrainerProfile);
+    }
+
+    @Override
+    public List<TrainerResponseDto> getAllTrainers() {
+        List<User> trainers = userRepository.findByRole(Role.TRAINER);
+        return trainers.stream()
+                .map(user -> {
+                    TrainerProfile profile = trainerProfileRepository.findByUserId(user.getId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Trainer profile not found for user id: " + user.getId()));
+                    return mapToResponseDto(user, profile);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TrainerResponseDto getTrainerById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + userId));
+
+        if (user.getRole() != Role.TRAINER) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not a trainer");
+        }
+
+        TrainerProfile profile = trainerProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer profile not found for user id: " + userId));
+
+        return mapToResponseDto(user, profile);
+    }
+
+    @Override
+    @Transactional
+    public TrainerResponseDto updateTrainer(Long userId, UpdateTrainerRequestDto updateDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + userId));
+
+        if (user.getRole() != Role.TRAINER) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not a trainer");
+        }
+
+        TrainerProfile profile = trainerProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer profile not found for user id: " + userId));
+
+        // Update User fields (only non-null values)
+        if (updateDto.getName() != null) {
+            user.setName(updateDto.getName());
+        }
+        if (updateDto.getPhone() != null) {
+            user.setPhone(updateDto.getPhone());
+        }
+        userRepository.save(user);
+
+        // Update TrainerProfile fields (only non-null values)
+        if (updateDto.getSpecialization() != null) {
+            profile.setSpecialization(updateDto.getSpecialization());
+        }
+        if (updateDto.getExperienceYears() != null) {
+            profile.setExperienceYears(updateDto.getExperienceYears());
+        }
+        if (updateDto.getQualification() != null) {
+            profile.setQualification(updateDto.getQualification());
+        }
+        if (updateDto.getJoiningDate() != null) {
+            profile.setJoiningDate(updateDto.getJoiningDate());
+        }
+        if (updateDto.getSalary() != null) {
+            profile.setSalary(updateDto.getSalary());
+        }
+        trainerProfileRepository.save(profile);
+
+        return mapToResponseDto(user, profile);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTrainer(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + userId));
+
+        if (user.getRole() != Role.TRAINER) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not a trainer");
+        }
+
+        user.setStatus(UserStatus.INACTIVE);
+        userRepository.save(user);
     }
 
     @NotNull

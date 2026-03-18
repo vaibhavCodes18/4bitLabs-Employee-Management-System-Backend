@@ -3,6 +3,7 @@ package com.fourbitlabs.employee_management_system.service.impl;
 import com.fourbitlabs.employee_management_system.service.interfaces.*;
 
 import com.fourbitlabs.employee_management_system.dto.request.AnalystRequestDto;
+import com.fourbitlabs.employee_management_system.dto.request.UpdateAnalystRequestDto;
 import com.fourbitlabs.employee_management_system.dto.response.AnalystResponseDto;
 import com.fourbitlabs.employee_management_system.entity.AnalystProfile;
 import com.fourbitlabs.employee_management_system.entity.User;
@@ -16,8 +17,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AnalystServiceImpl implements AnalystService {
@@ -35,11 +38,12 @@ public class AnalystServiceImpl implements AnalystService {
     public AnalystResponseDto createAnalyst(AnalystRequestDto analystRequestDto) {
         // Check for duplicate email
         if (userRepository.existsByEmail(analystRequestDto.getEmail())) {
-            throw new DuplicateResourceException("A user with email '" + analystRequestDto.getEmail() + "' already exists");
+            throw new DuplicateResourceException(
+                    "A user with email '" + analystRequestDto.getEmail() + "' already exists");
         }
         User admin = userRepository.findById(analystRequestDto.getAdminId())
-                .orElseThrow(() -> new ResourceNotFoundException("A admin with this id: "+ analystRequestDto.getAdminId() + " is not found."));
-
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "A admin with this id: " + analystRequestDto.getAdminId() + " is not found."));
 
         User user = new User();
         user.setName(analystRequestDto.getName());
@@ -60,6 +64,84 @@ public class AnalystServiceImpl implements AnalystService {
         AnalystProfile savedAnalystProfile = analystProfileRepository.save(analystProfile);
 
         return mapToResponseDto(savedUser, savedAnalystProfile);
+    }
+
+    @Override
+    public List<AnalystResponseDto> getAllAnalysts() {
+        List<User> analysts = userRepository.findByRole(Role.ANALYST);
+        return analysts.stream()
+                .map(user -> {
+                    AnalystProfile profile = analystProfileRepository.findByUserId(user.getId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Analyst profile not found for user id: " + user.getId()));
+                    return mapToResponseDto(user, profile);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public AnalystResponseDto getAnalystById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with id: " + userId));
+
+        if (user.getRole() != Role.ANALYST) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not an analyst");
+        }
+
+        AnalystProfile profile = analystProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Analyst profile not found for user id: " + userId));
+
+        return mapToResponseDto(user, profile);
+    }
+
+    @Override
+    @Transactional
+    public AnalystResponseDto updateAnalyst(Long userId, UpdateAnalystRequestDto updateDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with id: " + userId));
+
+        if (user.getRole() != Role.ANALYST) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not an analyst");
+        }
+
+        AnalystProfile profile = analystProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Analyst profile not found for user id: " + userId));
+
+        // Update User fields (only non-null values)
+        if (updateDto.getName() != null) {
+            user.setName(updateDto.getName());
+        }
+        if (updateDto.getPhone() != null) {
+            user.setPhone(updateDto.getPhone());
+        }
+        userRepository.save(user);
+
+        // Update AnalystProfile fields (only non-null values)
+        if (updateDto.getDepartment() != null) {
+            profile.setDepartment(updateDto.getDepartment());
+        }
+        if (updateDto.getJoiningDate() != null) {
+            profile.setJoiningDate(updateDto.getJoiningDate());
+        }
+        if (updateDto.getSalary() != null) {
+            profile.setSalary(updateDto.getSalary());
+        }
+        analystProfileRepository.save(profile);
+
+        return mapToResponseDto(user, profile);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAnalyst(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with id: " + userId));
+
+        if (user.getRole() != Role.ANALYST) {
+            throw new ResourceNotFoundException("User with id " + userId + " is not an analyst");
+        }
+
+        user.setStatus(UserStatus.INACTIVE);
+        userRepository.save(user);
     }
 
     @NotNull

@@ -4,7 +4,6 @@ import com.fourbitlabs.employee_management_system.dto.request.AssignStudentReque
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.AssignmentTransferBatchResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.StudentCourseResponseDto;
-import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.entity.Assignment;
 import com.fourbitlabs.employee_management_system.entity.Batch;
 import com.fourbitlabs.employee_management_system.entity.Student;
@@ -15,7 +14,6 @@ import com.fourbitlabs.employee_management_system.repository.AssignmentRepositor
 import com.fourbitlabs.employee_management_system.repository.BatchRepository;
 import com.fourbitlabs.employee_management_system.repository.StudentRepository;
 import com.fourbitlabs.employee_management_system.service.interfaces.AssignmentService;
-import jakarta.persistence.Access;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,15 +33,16 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Autowired
     private BatchRepository batchRepository;
 
-
     @Override
     public AssignmentResponseDto assignStudent(AssignStudentRequestDto studentRequestDto) {
 
         Student student = studentRepository.findById(studentRequestDto.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("A student with this id: "+ studentRequestDto.getStudentId() + " is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "A student with this id: " + studentRequestDto.getStudentId() + " is not found."));
 
         Batch batch = batchRepository.findById(studentRequestDto.getBatchId())
-                .orElseThrow(() -> new ResourceNotFoundException("A batch with this id: "+ studentRequestDto.getBatchId() + " is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "A batch with this id: " + studentRequestDto.getBatchId() + " is not found."));
 
         Assignment assignment = new Assignment();
         assignment.setStudent(student);
@@ -58,15 +57,17 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public AssignmentTransferBatchResponseDto transferBatch(AssignStudentRequestDto studentRequestDto) {
         Student student = studentRepository.findById(studentRequestDto.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("A student with this id: "+ studentRequestDto.getStudentId() + " is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "A student with this id: " + studentRequestDto.getStudentId() + " is not found."));
 
         Batch newBatch = batchRepository.findById(studentRequestDto.getBatchId())
-                .orElseThrow(() -> new ResourceNotFoundException("A batch with this id: "+ studentRequestDto.getBatchId() + " is not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "A batch with this id: " + studentRequestDto.getBatchId() + " is not found."));
 
         Assignment assignment = assignmentRepository.findByStudentIdAndStatus(student.getId(), AssignmentStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
 
-        if(Objects.equals(assignment.getBatch().getId(), newBatch.getId())){
+        if (Objects.equals(assignment.getBatch().getId(), newBatch.getId())) {
             throw new DuplicateResourceException("Student cannot be transferred to the same batch");
         }
 
@@ -85,11 +86,12 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public List<StudentCourseResponseDto> fetchAllStudentByBatch(Long batchId) {
         List<Student> allStudents = new ArrayList<>();
-        List<Assignment> allAssigns = assignmentRepository.findByBatchIdAndStatus(batchId, AssignmentStatus.ACTIVE).stream().distinct().toList();
+        List<Assignment> allAssigns = assignmentRepository.findByBatchIdAndStatus(batchId, AssignmentStatus.ACTIVE)
+                .stream().distinct().toList();
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new ResourceNotFoundException("batch not found"));
         Iterator<Assignment> iterator = allAssigns.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             Assignment assignment = iterator.next();
             Long studentId = assignment.getStudent().getId();
             Student batchStudent = studentRepository.findById(studentId)
@@ -113,7 +115,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @NotNull
-    private static AssignmentTransferBatchResponseDto getAssignmentTransferBatchResponseDto(Assignment newSavedAssignment, Assignment assignment) {
+    private static AssignmentTransferBatchResponseDto getAssignmentTransferBatchResponseDto(
+            Assignment newSavedAssignment, Assignment assignment) {
         AssignmentTransferBatchResponseDto assignmentTransferBatchResponseDto = new AssignmentTransferBatchResponseDto();
 
         assignmentTransferBatchResponseDto.setId(newSavedAssignment.getId());
