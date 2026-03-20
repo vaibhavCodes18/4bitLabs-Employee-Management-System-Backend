@@ -59,4 +59,11 @@ public class AssignmentController {
         ApiResponse<?> apiResponse = new ApiResponse<>(200, "All students fetched!", allStudents);
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<AssignmentResponseDto>>> getAllAssignments() {
+        List<AssignmentResponseDto> assignments = assignmentService.getAllAssignments();
+        ApiResponse<List<AssignmentResponseDto>> apiResponse = new ApiResponse<>(200, "All assignments fetched!", assignments);
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
 }

@@ -10,6 +10,8 @@ public class BatchProgressResponseDto {
     private String topicCovered;
     private Long batchId;
     private Long trainerId;
+    private String documentUrl;
+    private String documentName;
     private LocalDateTime createdAt;
 
     public BatchProgressResponseDto() {
@@ -17,6 +19,7 @@ public class BatchProgressResponseDto {
 
     public BatchProgressResponseDto(Long id, String title, String description, Integer sessionNumber,
                                     String topicCovered, Long batchId, Long trainerId,
+                                    String documentUrl, String documentName,
                                     LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
@@ -25,6 +28,8 @@ public class BatchProgressResponseDto {
         this.topicCovered = topicCovered;
         this.batchId = batchId;
         this.trainerId = trainerId;
+        this.documentUrl = documentUrl;
+        this.documentName = documentName;
         this.createdAt = createdAt;
     }
 
@@ -90,5 +95,21 @@ public class BatchProgressResponseDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
+    }
+
+    public String getDocumentName() {
+        return documentName;
+    }
+
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
     }
 }

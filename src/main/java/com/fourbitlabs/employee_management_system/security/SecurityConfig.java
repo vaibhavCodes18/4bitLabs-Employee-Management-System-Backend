@@ -50,11 +50,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/admin/register", "/api/").permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll()
+                        
+                        // Overlapping GET mappings for Dropdowns and Mappings in Dashboards
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/admin/trainers/**").hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/analyst/batches/**").hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/counsellor/students/**").hasAnyRole("ADMIN", "COUNSELLOR", "ANALYST", "TRAINER")
+                        
+                        // Strict Write/Manage Mappings
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
                         .requestMatchers("/api/counsellor/**").hasAnyRole("COUNSELLOR", "ADMIN")
                         .requestMatchers("/api/trainer/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/analyst/**").hasAnyRole("ANALYST", "ADMIN")
-                        .requestMatchers("/api/assignments/**").hasAnyRole("ADMIN", "ANALYST")
+                        .requestMatchers("/api/assignments/**").hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
+                        .requestMatchers("/api/batch-progress/**").hasAnyRole("ADMIN", "TRAINER", "ANALYST", "COUNSELLOR")
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

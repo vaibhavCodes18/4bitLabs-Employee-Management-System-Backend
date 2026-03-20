@@ -2,8 +2,10 @@ package com.fourbitlabs.employee_management_system.controller;
 
 import com.fourbitlabs.employee_management_system.dto.request.BatchRequestDto;
 import com.fourbitlabs.employee_management_system.dto.request.UpdateBatchRequestDto;
+import com.fourbitlabs.employee_management_system.dto.response.AnalystResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.BatchResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
+import com.fourbitlabs.employee_management_system.service.interfaces.AnalystService;
 import com.fourbitlabs.employee_management_system.service.interfaces.BatchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,24 @@ public class AnalystController {
 
     @Autowired
     private BatchService batchService;
+
+    @Autowired
+    private AnalystService analystService;
+
+    // ========================
+    // Profile Management
+    // ========================
+
+    /**
+     * Get analyst profile by User ID.
+     * GET /api/analyst/profile/{userId}
+     */
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<ApiResponse<AnalystResponseDto>> getAnalystProfile(@PathVariable Long userId) {
+        AnalystResponseDto analystResponseDto = analystService.getAnalystById(userId);
+        ApiResponse<AnalystResponseDto> response = new ApiResponse<>(200, "Analyst profile fetched successfully", analystResponseDto);
+        return ResponseEntity.ok(response);
+    }
 
     // ========================
     // Batch Management

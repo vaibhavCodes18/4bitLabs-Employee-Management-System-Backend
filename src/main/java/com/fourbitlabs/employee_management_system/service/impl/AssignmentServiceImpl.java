@@ -114,6 +114,13 @@ public class AssignmentServiceImpl implements AssignmentService {
         }).toList().stream().distinct().toList();
     }
 
+    @Override
+    public List<AssignmentResponseDto> getAllAssignments() {
+        return assignmentRepository.findAll().stream()
+                .map(AssignmentServiceImpl::getAssignmentResponseDto)
+                .toList();
+    }
+
     @NotNull
     private static AssignmentTransferBatchResponseDto getAssignmentTransferBatchResponseDto(
             Assignment newSavedAssignment, Assignment assignment) {

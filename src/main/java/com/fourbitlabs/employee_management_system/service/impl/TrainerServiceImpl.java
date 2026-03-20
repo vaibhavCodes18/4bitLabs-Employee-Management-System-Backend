@@ -44,6 +44,9 @@ public class TrainerServiceImpl implements TrainerService {
     private BatchProgressRepository batchProgressRepository;
 
     @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -181,7 +184,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public BatchProgressResponseDto addBatchProgress(BatchProgressRequestDto batchProgressRequestDto) {
+    public BatchProgressResponseDto addBatchProgress(org.springframework.web.multipart.MultipartFile file, BatchProgressRequestDto batchProgressRequestDto) {
         Batch batch = batchRepository.findById(batchProgressRequestDto.getBatchId())
                 .orElseThrow(() -> new ResourceNotFoundException("Batch not found with id: " + batchProgressRequestDto.getBatchId()));
 
@@ -195,6 +198,13 @@ public class TrainerServiceImpl implements TrainerService {
         batchProgress.setTopicCovered(batchProgressRequestDto.getTopicCovered());
         batchProgress.setBatch(batch);
         batchProgress.setTrainer(trainerProfile);
+
+        if (file != null && !file.isEmpty()) {
+            java.util.Map<String, Object> uploadResult = cloudinaryService.uploadFile(file);
+            batchProgress.setDocumentUrl((String) uploadResult.get("secure_url"));
+            batchProgress.setDocumentPublicId((String) uploadResult.get("public_id"));
+            batchProgress.setDocumentName(file.getOriginalFilename());
+        }
 
         BatchProgress savedProgress = batchProgressRepository.save(batchProgress);
         return mapToBatchProgressResponseDto(savedProgress);
@@ -221,6 +231,8 @@ public class TrainerServiceImpl implements TrainerService {
         if (batchProgress.getTrainer() != null) {
             dto.setTrainerName(batchProgress.getTrainer().getId());
         }
+        dto.setDocumentUrl(batchProgress.getDocumentUrl());
+        dto.setDocumentName(batchProgress.getDocumentName());
         dto.setCreatedAt(batchProgress.getCreatedAt());
         return dto;
     }

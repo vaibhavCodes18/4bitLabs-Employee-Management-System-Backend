@@ -12,4 +12,5 @@ public interface AssignmentService {
     AssignmentResponseDto assignStudent(AssignStudentRequestDto studentRequestDto);
     AssignmentTransferBatchResponseDto transferBatch(AssignStudentRequestDto studentRequestDto);
     List<StudentCourseResponseDto> fetchAllStudentByBatch(Long batchId);
+    List<AssignmentResponseDto> getAllAssignments();
 }

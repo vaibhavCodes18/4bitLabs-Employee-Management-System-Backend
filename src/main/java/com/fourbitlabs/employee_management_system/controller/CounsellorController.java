@@ -2,6 +2,7 @@ package com.fourbitlabs.employee_management_system.controller;
 
 import com.fourbitlabs.employee_management_system.dto.request.StudentRequestDto;
 import com.fourbitlabs.employee_management_system.dto.request.UpdateStudentRequestDto;
+import com.fourbitlabs.employee_management_system.dto.response.CounsellorResponseDto;
 import com.fourbitlabs.employee_management_system.dto.response.StudentResponseDto;
 import com.fourbitlabs.employee_management_system.response.ApiResponse;
 import com.fourbitlabs.employee_management_system.service.interfaces.CounsellorService;
@@ -25,6 +26,21 @@ public class CounsellorController {
 
     @Autowired
     private CounsellorService counsellorService;
+
+    // ========================
+    // Profile Management
+    // ========================
+
+    /**
+     * Get counsellor profile by User ID.
+     * GET /api/counsellor/profile/{userId}
+     */
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<ApiResponse<CounsellorResponseDto>> getCounsellorProfile(@PathVariable Long userId) {
+        CounsellorResponseDto counsellorResponseDto = counsellorService.getCounsellorById(userId);
+        ApiResponse<CounsellorResponseDto> response = new ApiResponse<>(200, "Counsellor profile fetched successfully", counsellorResponseDto);
+        return ResponseEntity.ok(response);
+    }
 
     // ========================
     // Student Management

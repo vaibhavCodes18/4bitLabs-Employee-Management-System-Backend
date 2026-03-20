@@ -16,10 +16,11 @@ public class BatchProgress {
 
     private String description;
 
-    private String documentName;
+    private String documentUrl;
 
-    @Lob
-    private String documentData;
+    private String documentPublicId;
+
+    private String documentName;
 
     private Integer sessionNumber;
 
@@ -42,13 +43,14 @@ public class BatchProgress {
     }
 
     public BatchProgress(Long id, String title, String description, String documentName,
-                         String documentData, Integer sessionNumber, String topicCovered,
+                         String documentUrl, String documentPublicId, Integer sessionNumber, String topicCovered,
                          Batch batch, TrainerProfile trainer) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.documentName = documentName;
-        this.documentData = documentData;
+        this.documentUrl = documentUrl;
+        this.documentPublicId = documentPublicId;
         this.sessionNumber = sessionNumber;
         this.topicCovered = topicCovered;
         this.batch = batch;
@@ -98,12 +100,20 @@ public class BatchProgress {
         this.documentName = documentName;
     }
 
-    public String getDocumentData() {
-        return documentData;
+    public String getDocumentUrl() {
+        return documentUrl;
     }
 
-    public void setDocumentData(String documentData) {
-        this.documentData = documentData;
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
+    }
+
+    public String getDocumentPublicId() {
+        return documentPublicId;
+    }
+
+    public void setDocumentPublicId(String documentPublicId) {
+        this.documentPublicId = documentPublicId;
     }
 
     public Integer getSessionNumber() {
