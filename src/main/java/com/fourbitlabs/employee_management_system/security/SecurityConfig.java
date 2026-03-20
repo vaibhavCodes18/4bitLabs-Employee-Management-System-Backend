@@ -18,9 +18,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private static final String[] SWAGGER_PATHS = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/webjars/**"
+    };
 
     private final UserDetailsService userDetailsService;
 
@@ -39,7 +49,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/admin/register", "/api/").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(SWAGGER_PATHS).permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
                         .requestMatchers("/api/counsellor/**").hasAnyRole("COUNSELLOR", "ADMIN")
                         .requestMatchers("/api/trainer/**").hasAnyRole("TRAINER", "ADMIN")
@@ -47,7 +57,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/assignments/**").hasAnyRole("ADMIN", "ANALYST")
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
