@@ -112,7 +112,7 @@ public class AdminController {
         ApiResponse<TrainerResponseDto> response = new ApiResponse<>(200, "Trainer updated successfully", trainerResponseDto);
         return ResponseEntity.ok(response);
     }
-
+//
     /**
      * Soft delete a trainer by user ID (sets status to INACTIVE).
      * DELETE /api/admin/trainers/{id}
