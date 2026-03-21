@@ -1,5 +1,6 @@
 package com.fourbitlabs.employee_management_system.service.impl;
 
+import com.fourbitlabs.employee_management_system.repository.TrainerProfileRepository;
 import com.fourbitlabs.employee_management_system.service.interfaces.*;
 
 import com.fourbitlabs.employee_management_system.dto.request.BatchRequestDto;
@@ -12,7 +13,6 @@ import com.fourbitlabs.employee_management_system.enums.BatchStatus;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.AnalystProfileRepository;
 import com.fourbitlabs.employee_management_system.repository.BatchRepository;
-import com.fourbitlabs.employee_management_system.repository.TrainerProfileRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

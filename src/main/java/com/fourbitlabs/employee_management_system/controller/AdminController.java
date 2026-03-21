@@ -107,7 +107,7 @@ public class AdminController {
      */
     @PutMapping("/trainers/{id}")
     public ResponseEntity<ApiResponse<TrainerResponseDto>> updateTrainer(
-            @PathVariable Long id, @Valid @RequestBody UpdateTrainerRequestDto updateDto) {
+            @PathVariable("id") Long id, @Valid @RequestBody UpdateTrainerRequestDto updateDto) {
         TrainerResponseDto trainerResponseDto = trainerService.updateTrainer(id, updateDto);
         ApiResponse<TrainerResponseDto> response = new ApiResponse<>(200, "Trainer updated successfully", trainerResponseDto);
         return ResponseEntity.ok(response);
@@ -118,7 +118,7 @@ public class AdminController {
      * DELETE /api/admin/trainers/{id}
      */
     @DeleteMapping("/trainers/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteTrainer(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTrainer(@PathVariable("id") Long id) {
         trainerService.deleteTrainer(id);
         ApiResponse<Void> response = new ApiResponse<>(200, "Trainer deactivated successfully", null);
         return ResponseEntity.ok(response);

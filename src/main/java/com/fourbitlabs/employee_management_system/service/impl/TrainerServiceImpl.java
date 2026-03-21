@@ -146,6 +146,10 @@ public class TrainerServiceImpl implements TrainerService {
         if (updateDto.getSalary() != null) {
             profile.setSalary(updateDto.getSalary());
         }
+        if (updateDto.getUserStatus() != null) {
+            user.setStatus(updateDto.getUserStatus());
+        }
+
         trainerProfileRepository.save(profile);
 
         return mapToResponseDto(user, profile);
