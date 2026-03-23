@@ -54,7 +54,7 @@ public class AssignmentController {
     }
 
     @GetMapping("/batch/{batchId}")
-    public ResponseEntity<?> getAllStudentByBatch(@PathVariable Long batchId){
+    public ResponseEntity<?> getAllStudentByBatch(@PathVariable("batchId") Long batchId){
         List<StudentCourseResponseDto> allStudents = assignmentService.fetchAllStudentByBatch(batchId);
         ApiResponse<?> apiResponse = new ApiResponse<>(200, "All students fetched!", allStudents);
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);

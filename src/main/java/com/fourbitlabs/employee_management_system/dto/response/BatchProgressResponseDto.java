@@ -85,7 +85,7 @@ public class BatchProgressResponseDto {
         return trainerId;
     }
 
-    public void setTrainerName(Long trainerId) {
+    public void setTrainerId(Long trainerId) {
         this.trainerId = trainerId;
     }
 

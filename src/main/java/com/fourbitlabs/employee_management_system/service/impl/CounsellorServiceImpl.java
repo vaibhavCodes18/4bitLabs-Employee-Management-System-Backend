@@ -165,8 +165,8 @@ public class CounsellorServiceImpl implements CounsellorService {
             throw new DuplicateResourceException("A student with email '" + studentRequestDto.getEmail() + "' already exists");
         }
 
-        CounsellorProfile counsellorProfile = counsellorProfileRepository.findById(studentRequestDto.getCounsellorId())
-                .orElseThrow(() -> new ResourceNotFoundException("A counsellor not found with this id: "+studentRequestDto.getCounsellorId()));
+        CounsellorProfile counsellorProfile = counsellorProfileRepository.findByUserId(studentRequestDto.getCounsellorId())
+                .orElseThrow(() -> new ResourceNotFoundException("A counsellor not found with user id: "+studentRequestDto.getCounsellorId()));
 
         Student student = new Student();
 
@@ -241,7 +241,7 @@ public class CounsellorServiceImpl implements CounsellorService {
         studentResponseDto.setPhone(savedStudent.getPhone());
         studentResponseDto.setStatus(savedStudent.getStatus());
         studentResponseDto.setJoiningDate(savedStudent.getJoiningDate());
-        studentResponseDto.setCounsellorId(savedStudent.getCounsellor().getId());
+        studentResponseDto.setCounsellorId(savedStudent.getCounsellor().getUser().getId());
         return studentResponseDto;
     }
 

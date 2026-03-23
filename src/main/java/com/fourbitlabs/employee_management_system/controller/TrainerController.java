@@ -25,7 +25,7 @@ public class TrainerController {
      * GET /api/trainer/profile/{userId}
      */
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<ApiResponse<TrainerResponseDto>> getTrainerProfile(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<TrainerResponseDto>> getTrainerProfile(@PathVariable("userId") Long userId) {
         TrainerResponseDto trainerResponseDto = trainerService.getTrainerById(userId);
         ApiResponse<TrainerResponseDto> response = new ApiResponse<>(200, "Trainer profile fetched successfully", trainerResponseDto);
         return ResponseEntity.ok(response);

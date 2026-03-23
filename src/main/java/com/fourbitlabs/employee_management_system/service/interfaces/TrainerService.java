@@ -16,5 +16,8 @@ public interface TrainerService {
     TrainerResponseDto updateTrainer(Long userId, UpdateTrainerRequestDto updateDto);
     void deleteTrainer(Long userId);
     BatchProgressResponseDto addBatchProgress(MultipartFile file, BatchProgressRequestDto batchProgressRequestDto);
+    List<BatchProgressResponseDto> getAllBatchProgress();
     List<BatchProgressResponseDto> getBatchProgress(Long batchId);
+    BatchProgressResponseDto updateBatchProgress(Long id, MultipartFile file, BatchProgressRequestDto batchProgressRequestDto);
+    void deleteBatchProgress(Long id);
 }

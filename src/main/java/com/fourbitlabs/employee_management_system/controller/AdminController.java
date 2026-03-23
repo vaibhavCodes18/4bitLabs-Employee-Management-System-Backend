@@ -95,7 +95,7 @@ public class AdminController {
      * GET /api/admin/trainers/{id}
      */
     @GetMapping("/trainers/{id}")
-    public ResponseEntity<ApiResponse<TrainerResponseDto>> getTrainerById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TrainerResponseDto>> getTrainerById(@PathVariable("id") Long id) {
         TrainerResponseDto trainerResponseDto = trainerService.getTrainerById(id);
         ApiResponse<TrainerResponseDto> response = new ApiResponse<>(200, "Trainer fetched successfully", trainerResponseDto);
         return ResponseEntity.ok(response);
@@ -156,7 +156,7 @@ public class AdminController {
      * GET /api/admin/analysts/{id}
      */
     @GetMapping("/analysts/{id}")
-    public ResponseEntity<ApiResponse<AnalystResponseDto>> getAnalystById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<AnalystResponseDto>> getAnalystById(@PathVariable("id") Long id) {
         AnalystResponseDto analystResponseDto = analystService.getAnalystById(id);
         ApiResponse<AnalystResponseDto> response = new ApiResponse<>(200, "Analyst fetched successfully", analystResponseDto);
         return ResponseEntity.ok(response);
@@ -168,7 +168,7 @@ public class AdminController {
      */
     @PutMapping("/analysts/{id}")
     public ResponseEntity<ApiResponse<AnalystResponseDto>> updateAnalyst(
-            @PathVariable Long id, @Valid @RequestBody UpdateAnalystRequestDto updateDto) {
+            @PathVariable("id") Long id, @Valid @RequestBody UpdateAnalystRequestDto updateDto) {
         AnalystResponseDto analystResponseDto = analystService.updateAnalyst(id, updateDto);
         ApiResponse<AnalystResponseDto> response = new ApiResponse<>(200, "Analyst updated successfully", analystResponseDto);
         return ResponseEntity.ok(response);
@@ -179,7 +179,7 @@ public class AdminController {
      * DELETE /api/admin/analysts/{id}
      */
     @DeleteMapping("/analysts/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteAnalyst(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteAnalyst(@PathVariable("id") Long id) {
         analystService.deleteAnalyst(id);
         ApiResponse<Void> response = new ApiResponse<>(200, "Analyst deactivated successfully", null);
         return ResponseEntity.ok(response);
@@ -217,7 +217,7 @@ public class AdminController {
      * GET /api/admin/counsellors/{id}
      */
     @GetMapping("/counsellors/{id}")
-    public ResponseEntity<ApiResponse<CounsellorResponseDto>> getCounsellorById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CounsellorResponseDto>> getCounsellorById(@PathVariable("id") Long id) {
         CounsellorResponseDto counsellorResponseDto = counsellorService.getCounsellorById(id);
         ApiResponse<CounsellorResponseDto> response = new ApiResponse<>(200, "Counsellor fetched successfully", counsellorResponseDto);
         return ResponseEntity.ok(response);
@@ -229,7 +229,7 @@ public class AdminController {
      */
     @PutMapping("/counsellors/{id}")
     public ResponseEntity<ApiResponse<CounsellorResponseDto>> updateCounsellor(
-            @PathVariable Long id, @Valid @RequestBody UpdateCounsellorRequestDto updateDto) {
+            @PathVariable("id") Long id, @Valid @RequestBody UpdateCounsellorRequestDto updateDto) {
         CounsellorResponseDto counsellorResponseDto = counsellorService.updateCounsellor(id, updateDto);
         ApiResponse<CounsellorResponseDto> response = new ApiResponse<>(200, "Counsellor updated successfully", counsellorResponseDto);
         return ResponseEntity.ok(response);
@@ -240,7 +240,7 @@ public class AdminController {
      * DELETE /api/admin/counsellors/{id}
      */
     @DeleteMapping("/counsellors/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCounsellor(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCounsellor(@PathVariable("id") Long id) {
         counsellorService.deleteCounsellor(id);
         ApiResponse<Void> response = new ApiResponse<>(200, "Counsellor deactivated successfully", null);
         return ResponseEntity.ok(response);

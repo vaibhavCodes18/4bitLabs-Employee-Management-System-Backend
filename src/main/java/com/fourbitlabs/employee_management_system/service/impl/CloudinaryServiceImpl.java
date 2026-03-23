@@ -25,20 +25,35 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             throw new RuntimeException("Cannot upload an empty file");
         }
         
-        String contentType = file.getContentType();
-        if (contentType == null || !(contentType.equals("application/pdf") || 
-            contentType.equals("application/msword") || 
-            contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) {
-            throw new RuntimeException("Only PDF and DOC/DOCX files are allowed");
-        }
+        // The file type validation is configured on the frontend. Cloudinary raw storage accepts any file type safely!
 
         try {
             return cloudinary.uploader().upload(
                     file.getBytes(),
-                    ObjectUtils.asMap("resource_type", "auto")
+                    ObjectUtils.asMap(
+                            "resource_type", "auto",
+                            "use_filename", true,
+                            "unique_filename", true,
+                            "filename_override", file.getOriginalFilename()
+                    )
             );
         } catch (IOException e) {
             throw new RuntimeException("File upload failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteFile(String publicId) {
+        if (publicId == null || publicId.isEmpty()) {
+            return;
+        }
+        try {
+            // Cloudinary's "auto" upload may have classified it as "image" (PDFs, Images) or "raw" (Office Docs).
+            // We try to destroy both just in case, to ensure complete removal.
+            cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "image"));
+            cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "raw"));
+        } catch (IOException e) {
+            System.err.println("Cloudinary file deletion failed for publicId: " + publicId + " - " + e.getMessage());
         }
     }
 }

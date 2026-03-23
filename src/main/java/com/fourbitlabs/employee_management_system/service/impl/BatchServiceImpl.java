@@ -35,11 +35,11 @@ public class BatchServiceImpl implements BatchService {
 
     @Override
     public BatchResponseDto saveBatch(BatchRequestDto batchRequestDto) {
-        AnalystProfile analystProfile = analystProfileRepository.findById(batchRequestDto.getAnalystId())
-                .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with this id: " + batchRequestDto.getAnalystId()));
+        AnalystProfile analystProfile = analystProfileRepository.findByUserId(batchRequestDto.getAnalystId())
+                .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with user id: " + batchRequestDto.getAnalystId()));
 
-        TrainerProfile trainerProfile = trainerProfileRepository.findById(batchRequestDto.getTrainerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with this id: " + batchRequestDto.getTrainerId()));
+        TrainerProfile trainerProfile = trainerProfileRepository.findByUserId(batchRequestDto.getTrainerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with user id: " + batchRequestDto.getTrainerId()));
 
         Batch batch = new Batch();
         batch.setName(batchRequestDto.getName());
@@ -92,15 +92,15 @@ public class BatchServiceImpl implements BatchService {
 
         // Allow reassigning trainer
         if (updateDto.getTrainerId() != null) {
-            TrainerProfile trainerProfile = trainerProfileRepository.findById(updateDto.getTrainerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + updateDto.getTrainerId()));
+            TrainerProfile trainerProfile = trainerProfileRepository.findByUserId(updateDto.getTrainerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with user id: " + updateDto.getTrainerId()));
             batch.setTrainer(trainerProfile);
         }
 
         // Allow reassigning analyst
         if (updateDto.getAnalystId() != null) {
-            AnalystProfile analystProfile = analystProfileRepository.findById(updateDto.getAnalystId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with id: " + updateDto.getAnalystId()));
+            AnalystProfile analystProfile = analystProfileRepository.findByUserId(updateDto.getAnalystId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Analyst not found with user id: " + updateDto.getAnalystId()));
             batch.setAnalyst(analystProfile);
         }
 
@@ -127,8 +127,8 @@ public class BatchServiceImpl implements BatchService {
         batchResponseDto.setStatus(savedBatch.getStatus());
         batchResponseDto.setStartDate(savedBatch.getStartDate());
         batchResponseDto.setEndDate(savedBatch.getEndDate());
-        batchResponseDto.setAnalystId(savedBatch.getAnalyst().getId());
-        batchResponseDto.setTrainerId(savedBatch.getTrainer().getId());
+        batchResponseDto.setAnalystId(savedBatch.getAnalyst().getUser().getId());
+        batchResponseDto.setTrainerId(savedBatch.getTrainer().getUser().getId());
         return batchResponseDto;
     }
 }

@@ -40,7 +40,7 @@ public class AnalystController {
      * GET /api/analyst/profile/{userId}
      */
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<ApiResponse<AnalystResponseDto>> getAnalystProfile(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<AnalystResponseDto>> getAnalystProfile(@PathVariable("userId") Long userId) {
         AnalystResponseDto analystResponseDto = analystService.getAnalystById(userId);
         ApiResponse<AnalystResponseDto> response = new ApiResponse<>(200, "Analyst profile fetched successfully", analystResponseDto);
         return ResponseEntity.ok(response);
@@ -78,7 +78,7 @@ public class AnalystController {
      * GET /api/analyst/batches/{id}
      */
     @GetMapping("/batches/{id}")
-    public ResponseEntity<ApiResponse<BatchResponseDto>> getBatchById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<BatchResponseDto>> getBatchById(@PathVariable("id") Long id) {
         BatchResponseDto batchResponseDto = batchService.getBatchById(id);
         ApiResponse<BatchResponseDto> response = new ApiResponse<>(200, "Batch fetched successfully", batchResponseDto);
         return ResponseEntity.ok(response);
@@ -90,7 +90,7 @@ public class AnalystController {
      */
     @PutMapping("/batches/{id}")
     public ResponseEntity<ApiResponse<BatchResponseDto>> updateBatch(
-            @PathVariable Long id, @Valid @RequestBody UpdateBatchRequestDto updateDto) {
+            @PathVariable("id") Long id, @Valid @RequestBody UpdateBatchRequestDto updateDto) {
         BatchResponseDto batchResponseDto = batchService.updateBatch(id, updateDto);
         ApiResponse<BatchResponseDto> response = new ApiResponse<>(200, "Batch updated successfully", batchResponseDto);
         return ResponseEntity.ok(response);
@@ -101,7 +101,7 @@ public class AnalystController {
      * DELETE /api/analyst/batches/{id}
      */
     @DeleteMapping("/batches/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteBatch(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteBatch(@PathVariable("id") Long id) {
         batchService.deleteBatch(id);
         ApiResponse<Void> response = new ApiResponse<>(200, "Batch cancelled successfully", null);
         return ResponseEntity.ok(response);

@@ -192,8 +192,8 @@ public class TrainerServiceImpl implements TrainerService {
         Batch batch = batchRepository.findById(batchProgressRequestDto.getBatchId())
                 .orElseThrow(() -> new ResourceNotFoundException("Batch not found with id: " + batchProgressRequestDto.getBatchId()));
 
-        TrainerProfile trainerProfile = trainerProfileRepository.findById(batchProgressRequestDto.getTrainerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + batchProgressRequestDto.getTrainerId()));
+        TrainerProfile trainerProfile = trainerProfileRepository.findByUserId(batchProgressRequestDto.getTrainerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with user id: " + batchProgressRequestDto.getTrainerId()));
 
         BatchProgress batchProgress = new BatchProgress();
         batchProgress.setTitle(batchProgressRequestDto.getTitle());
@@ -215,11 +215,55 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
+    public List<BatchProgressResponseDto> getAllBatchProgress() {
+        List<BatchProgress> allProgress = batchProgressRepository.findAll();
+        return allProgress.stream()
+                .map(this::mapToBatchProgressResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<BatchProgressResponseDto> getBatchProgress(Long batchId) {
         List<BatchProgress> batchProgressList = batchProgressRepository.findByBatchId(batchId);
         return batchProgressList.stream()
                 .map(this::mapToBatchProgressResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BatchProgressResponseDto updateBatchProgress(Long id, org.springframework.web.multipart.MultipartFile file, BatchProgressRequestDto batchProgressRequestDto) {
+        BatchProgress batchProgress = batchProgressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Batch progress not found with id: " + id));
+
+        if (batchProgressRequestDto.getTitle() != null) {
+            batchProgress.setTitle(batchProgressRequestDto.getTitle());
+        }
+        if (batchProgressRequestDto.getDescription() != null) {
+            batchProgress.setDescription(batchProgressRequestDto.getDescription());
+        }
+
+        if (file != null && !file.isEmpty()) {
+            if (batchProgress.getDocumentPublicId() != null) {
+                cloudinaryService.deleteFile(batchProgress.getDocumentPublicId());
+            }
+            java.util.Map<String, Object> uploadResult = cloudinaryService.uploadFile(file);
+            batchProgress.setDocumentUrl((String) uploadResult.get("secure_url"));
+            batchProgress.setDocumentPublicId((String) uploadResult.get("public_id"));
+            batchProgress.setDocumentName(file.getOriginalFilename());
+        }
+
+        BatchProgress updatedProgress = batchProgressRepository.save(batchProgress);
+        return mapToBatchProgressResponseDto(updatedProgress);
+    }
+
+    @Override
+    public void deleteBatchProgress(Long id) {
+        BatchProgress batchProgress = batchProgressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Batch progress not found with id: " + id));
+        if (batchProgress.getDocumentPublicId() != null) {
+            cloudinaryService.deleteFile(batchProgress.getDocumentPublicId());
+        }
+        batchProgressRepository.delete(batchProgress);
     }
 
     private BatchProgressResponseDto mapToBatchProgressResponseDto(BatchProgress batchProgress) {
@@ -233,7 +277,7 @@ public class TrainerServiceImpl implements TrainerService {
             dto.setBatchId(batchProgress.getBatch().getId());
         }
         if (batchProgress.getTrainer() != null) {
-            dto.setTrainerName(batchProgress.getTrainer().getId());
+            dto.setTrainerId(batchProgress.getTrainer().getUser().getId());
         }
         dto.setDocumentUrl(batchProgress.getDocumentUrl());
         dto.setDocumentName(batchProgress.getDocumentName());

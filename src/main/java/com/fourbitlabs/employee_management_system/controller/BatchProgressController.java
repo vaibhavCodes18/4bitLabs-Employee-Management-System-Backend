@@ -21,11 +21,11 @@ public class BatchProgressController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<BatchProgressResponseDto>> addBatchProgress(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
-            @RequestParam("sessionNumber") Integer sessionNumber,
-            @RequestParam("topicCovered") String topicCovered,
+            @RequestParam(value = "sessionNumber", required = false) Integer sessionNumber,
+            @RequestParam(value = "topicCovered", required = false) String topicCovered,
             @RequestParam("batchId") Long batchId,
             @RequestParam("trainerId") String trainerId) {
 
@@ -37,10 +37,44 @@ public class BatchProgressController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<BatchProgressResponseDto>>> getAllBatchProgress() {
+        List<BatchProgressResponseDto> progressList = trainerService.getAllBatchProgress();
+        ApiResponse<List<BatchProgressResponseDto>> response = new ApiResponse<>(200, "All batch progress fetched successfully", progressList);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{batchId}")
-    public ResponseEntity<ApiResponse<List<BatchProgressResponseDto>>> getBatchProgress(@PathVariable Long batchId) {
+    public ResponseEntity<ApiResponse<List<BatchProgressResponseDto>>> getBatchProgress(@PathVariable("batchId") Long batchId) {
         List<BatchProgressResponseDto> progressList = trainerService.getBatchProgress(batchId);
         ApiResponse<List<BatchProgressResponseDto>> response = new ApiResponse<>(200, "Batch progress fetched successfully", progressList);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<BatchProgressResponseDto>> updateBatchProgress(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam(value = "sessionNumber", required = false) Integer sessionNumber,
+            @RequestParam(value = "topicCovered", required = false) String topicCovered) {
+
+        BatchProgressRequestDto batchProgressRequestDto = new BatchProgressRequestDto();
+        batchProgressRequestDto.setTitle(title);
+        batchProgressRequestDto.setDescription(description);
+        batchProgressRequestDto.setSessionNumber(sessionNumber);
+        batchProgressRequestDto.setTopicCovered(topicCovered);
+
+        BatchProgressResponseDto responseDto = trainerService.updateBatchProgress(id, file, batchProgressRequestDto);
+        ApiResponse<BatchProgressResponseDto> response = new ApiResponse<>(200, "Batch progress updated successfully", responseDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteBatchProgress(@PathVariable("id") Long id) {
+        trainerService.deleteBatchProgress(id);
+        ApiResponse<Void> response = new ApiResponse<>(200, "Batch progress deleted successfully", null);
         return ResponseEntity.ok(response);
     }
 }
