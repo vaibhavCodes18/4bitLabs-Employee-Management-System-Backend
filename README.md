@@ -13,7 +13,8 @@ A robust RESTful backend API built for the **4bitLabs** Employee Management Syst
 | **Spring Security + JWT** | Authentication & authorization |
 | **Spring Data JPA** | ORM and database access |
 | **MySQL 8.0+** | Relational database |
-| **SpringDoc OpenAPI 2.8** | Automated API documentation (Swagger UI) |
+| **SpringDoc OpenAPI 2.0+** | Automated API documentation (Swagger UI) |
+| **Cloudinary** | Cloud storage for file/document uploads |
 | **Maven** | Build tool |
 | **java-dotenv** | Environment variable management |
 
@@ -144,17 +145,17 @@ BatchProgress ─ Batch + Trainer                (progress tracking per batch)
 | `GET` | `/api/admin/trainers` | Get all trainers |
 | `GET` | `/api/admin/trainers/{id}` | Get trainer by user ID |
 | `PUT` | `/api/admin/trainers/{id}` | Update trainer |
-| `DELETE` | `/api/admin/trainers/{id}` | Soft-delete trainer (→ INACTIVE) |
+| `DELETE` | `/api/admin/trainers/{id}` | Hard-delete trainer (Cascades to progress & refresh tokens) |
 | `POST` | `/api/admin/analysts` | Create an analyst |
 | `GET` | `/api/admin/analysts` | Get all analysts |
 | `GET` | `/api/admin/analysts/{id}` | Get analyst by user ID |
 | `PUT` | `/api/admin/analysts/{id}` | Update analyst |
-| `DELETE` | `/api/admin/analysts/{id}` | Soft-delete analyst (→ INACTIVE) |
+| `DELETE` | `/api/admin/analysts/{id}` | Hard-delete analyst (Cascades to refresh tokens) |
 | `POST` | `/api/admin/counsellors` | Create a counsellor |
 | `GET` | `/api/admin/counsellors` | Get all counsellors |
 | `GET` | `/api/admin/counsellors/{id}` | Get counsellor by user ID |
 | `PUT` | `/api/admin/counsellors/{id}` | Update counsellor |
-| `DELETE` | `/api/admin/counsellors/{id}` | Soft-delete counsellor (→ INACTIVE) |
+| `DELETE` | `/api/admin/counsellors/{id}` | Hard-delete counsellor (Cascades to students & assignments) |
 
 ### 🎓 Counsellor (`/api/counsellor`) — Requires `COUNSELLOR` or `ADMIN` role
 
@@ -164,7 +165,7 @@ BatchProgress ─ Batch + Trainer                (progress tracking per batch)
 | `GET` | `/api/counsellor/students` | Get all students |
 | `GET` | `/api/counsellor/students/{id}` | Get student by ID |
 | `PUT` | `/api/counsellor/students/{id}` | Update student |
-| `DELETE` | `/api/counsellor/students/{id}` | Soft-delete student (→ DROPPED) |
+| `DELETE` | `/api/counsellor/students/{id}` | Hard-delete student (Cascades to assignments) |
 
 ### 📊 Analyst (`/api/analyst`) — Requires `ANALYST` or `ADMIN` role
 
@@ -174,14 +175,15 @@ BatchProgress ─ Batch + Trainer                (progress tracking per batch)
 | `GET` | `/api/analyst/batches` | Get all batches |
 | `GET` | `/api/analyst/batches/{id}` | Get batch by ID |
 | `PUT` | `/api/analyst/batches/{id}` | Update batch (can reassign trainer/analyst) |
-| `DELETE` | `/api/analyst/batches/{id}` | Soft-delete batch (→ CANCELLED) |
+| `DELETE` | `/api/analyst/batches/{id}` | Hard-delete batch (Cascades to assignments, progress, & Cloudinary) |
 
 ### 🧑‍🏫 Trainer (`/api/trainer`) — Requires `TRAINER` or `ADMIN` role
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/trainer/batch-progress` | Add batch progress entry |
+| `POST` | `/api/trainer/batch-progress` | Add batch progress entry with Cloudinary upload |
 | `GET` | `/api/trainer/batch-progress/{batchId}` | Get batch progress by batch ID |
+| `DELETE` | `/api/trainer/batch-progress/{id}` | Delete batch progress and its Cloudinary file |
 
 ### 📋 Assignments (`/api/assignments`) — Requires `ADMIN` or `ANALYST` role
 
@@ -254,11 +256,13 @@ The Swagger UI includes **JWT Bearer authentication** support — click the 🔒
 ## Key Features
 
 - **JWT Authentication** — Stateless access tokens + rotating refresh tokens stored as HttpOnly cookies
-- **Token Revocation** — Refresh tokens are revoked (not deleted) for audit purposes; all tokens invalidated on new login
+- **Token Revocation** — Refresh tokens are actively purged using custom repository methods when users are permanently removed, alongside automatic invalidation during standard logout procedures.
 - **Role-Based Access Control** — Four roles: `ADMIN`, `TRAINER`, `ANALYST`, `COUNSELLOR`, enforced at the security filter level
-- **Soft Deletes** — Records are never physically deleted; status is set to `INACTIVE`, `DROPPED`, or `CANCELLED` preserving data integrity
+- **Cloudinary Integration** — Remote file hosting integration using Cloudinary seamlessly handling trainer progress documents (both uploading and hard-deletion to avoid memory leaks)
+- **Hard Deletes with Cascading Resolvers** — Hard-deletions cleanly remove associated active tokens, files, batch progress, and assignments manually to strictly prevent SQL Intergrity exceptions (Foreign key violations)
+- **Password Hashing Protection** — Cryptographic salting of users preventing plaintext exposures internally using B-Crypt standards
 - **Partial Updates** — PUT endpoints only update non-null fields, allowing targeted modifications
-- **Swagger/OpenAPI Documentation** — Auto-generated interactive API docs with JWT auth support
+- **Swagger/OpenAPI Documentation** — Auto-generated interactive API docs with JWT auth support (Version 2.0.0)
 - **Standardized Responses** — All endpoints return a consistent `ApiResponse<T>` wrapper (`status`, `message`, `data`)
 - **Auto Timestamps** — `createdAt` and `updatedAt` fields auto-managed via JPA `@PrePersist` and `@PreUpdate` lifecycle callbacks
 - **Environment Config** — Sensitive credentials managed through `.env` files using `java-dotenv`

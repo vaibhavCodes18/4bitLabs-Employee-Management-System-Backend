@@ -26,7 +26,7 @@ public class OpenApiConfig {
                         .description("RESTful API for the 4bitLabs Employee Management System. "
                                 + "Provides endpoints for managing employees (Trainers, Analysts, Counsellors), "
                                 + "students, batches, assignments, and batch progress with role-based access control.")
-                        .version("1.0.0")
+                        .version("2.0.0")
                         .contact(new Contact()
                                 .name("4bitLabs")
                                 .url("https://github.com/vaibhavCodes18"))
