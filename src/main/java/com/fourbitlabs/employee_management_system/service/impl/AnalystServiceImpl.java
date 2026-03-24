@@ -12,6 +12,8 @@ import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.AnalystProfileRepository;
+import com.fourbitlabs.employee_management_system.repository.BatchRepository;
+import com.fourbitlabs.employee_management_system.repository.RefreshTokenRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,12 @@ public class AnalystServiceImpl implements AnalystService {
 
     @Autowired
     private AnalystProfileRepository analystProfileRepository;
+
+    @Autowired
+    private BatchRepository batchRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -51,7 +59,7 @@ public class AnalystServiceImpl implements AnalystService {
         user.setPhone(analystRequestDto.getPhone());
         user.setPassword(passwordEncoder.encode(analystRequestDto.getPassword()));
         user.setRole(Role.ANALYST);
-        user.setStatus(UserStatus.ACTIVE);
+        user.setStatus(analystRequestDto.getUserStatus() != null ? analystRequestDto.getUserStatus() : UserStatus.ACTIVE);
         user.setCreatedByAdmin(admin);
         User savedUser = userRepository.save(user);
         user.getManagedUsers().add(savedUser);
@@ -125,6 +133,9 @@ public class AnalystServiceImpl implements AnalystService {
         if (updateDto.getSalary() != null) {
             profile.setSalary(updateDto.getSalary());
         }
+        if (updateDto.getUserStatus() != null) {
+            user.setStatus(updateDto.getUserStatus());
+        }
         analystProfileRepository.save(profile);
 
         return mapToResponseDto(user, profile);
@@ -140,8 +151,21 @@ public class AnalystServiceImpl implements AnalystService {
             throw new ResourceNotFoundException("User with id " + userId + " is not an analyst");
         }
 
-        user.setStatus(UserStatus.INACTIVE);
-        userRepository.save(user);
+        analystProfileRepository.findByUserId(userId)
+                .ifPresent(profile -> {
+                    List<com.fourbitlabs.employee_management_system.entity.Batch> batches = batchRepository.findByAnalystId(profile.getId());
+                    if (batches != null) {
+                        for (com.fourbitlabs.employee_management_system.entity.Batch b : batches) {
+                            b.setAnalyst(null);
+                            batchRepository.save(b);
+                        }
+                    }
+
+                    analystProfileRepository.delete(profile);
+                });
+        
+        refreshTokenRepository.deleteByUser(user);
+        userRepository.delete(user);
     }
 
     @NotNull

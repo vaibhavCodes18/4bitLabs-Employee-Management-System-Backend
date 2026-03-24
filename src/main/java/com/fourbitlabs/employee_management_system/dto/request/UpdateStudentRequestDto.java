@@ -1,5 +1,7 @@
 package com.fourbitlabs.employee_management_system.dto.request;
 
+import com.fourbitlabs.employee_management_system.enums.StudentStatus;
+
 import java.time.LocalDate;
 
 public class UpdateStudentRequestDto {
@@ -10,13 +12,24 @@ public class UpdateStudentRequestDto {
 
     private LocalDate joiningDate;
 
+    private StudentStatus status;
+
     public UpdateStudentRequestDto() {
     }
 
-    public UpdateStudentRequestDto(String name, String phone, LocalDate joiningDate) {
+    public UpdateStudentRequestDto(String name, String phone, LocalDate joiningDate, StudentStatus status) {
         this.name = name;
         this.phone = phone;
         this.joiningDate = joiningDate;
+        this.status = status;
+    }
+
+    public StudentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(StudentStatus status) {
+        this.status = status;
     }
 
     public String getName() {

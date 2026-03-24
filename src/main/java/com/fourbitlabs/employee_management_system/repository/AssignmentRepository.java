@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     Optional<Assignment> findByStudentIdAndStatus(Long studentId, AssignmentStatus status);
     List<Assignment> findByBatchIdAndStatus(Long batchId, AssignmentStatus status);
+    List<Assignment> findByStudentId(Long studentId);
+    List<Assignment> findByBatchId(Long batchId);
 }

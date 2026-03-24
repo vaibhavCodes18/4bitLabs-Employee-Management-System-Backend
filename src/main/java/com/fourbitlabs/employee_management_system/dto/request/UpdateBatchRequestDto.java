@@ -1,5 +1,7 @@
 package com.fourbitlabs.employee_management_system.dto.request;
 
+import com.fourbitlabs.employee_management_system.enums.BatchStatus;
+
 import java.time.LocalDate;
 
 public class UpdateBatchRequestDto {
@@ -16,17 +18,28 @@ public class UpdateBatchRequestDto {
 
     private Long analystId;
 
+    private BatchStatus status;
+
     public UpdateBatchRequestDto() {
     }
 
     public UpdateBatchRequestDto(String name, String course, LocalDate startDate,
-                                 LocalDate endDate, Long trainerId, Long analystId) {
+                                 LocalDate endDate, Long trainerId, Long analystId, BatchStatus status) {
         this.name = name;
         this.course = course;
         this.startDate = startDate;
         this.endDate = endDate;
         this.trainerId = trainerId;
         this.analystId = analystId;
+        this.status = status;
+    }
+
+    public BatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BatchStatus status) {
+        this.status = status;
     }
 
     public String getName() {

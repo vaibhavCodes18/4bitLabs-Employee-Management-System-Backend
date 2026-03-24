@@ -12,6 +12,8 @@ import com.fourbitlabs.employee_management_system.entity.TrainerProfile;
 import com.fourbitlabs.employee_management_system.enums.BatchStatus;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.AnalystProfileRepository;
+import com.fourbitlabs.employee_management_system.repository.AssignmentRepository;
+import com.fourbitlabs.employee_management_system.repository.BatchProgressRepository;
 import com.fourbitlabs.employee_management_system.repository.BatchRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,15 @@ public class BatchServiceImpl implements BatchService {
 
     @Autowired
     private TrainerProfileRepository trainerProfileRepository;
+
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
+    @Autowired
+    private BatchProgressRepository batchProgressRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Override
     public BatchResponseDto saveBatch(BatchRequestDto batchRequestDto) {
@@ -104,6 +115,10 @@ public class BatchServiceImpl implements BatchService {
             batch.setAnalyst(analystProfile);
         }
 
+        if (updateDto.getStatus() != null) {
+            batch.setStatus(updateDto.getStatus());
+        }
+
         batchRepository.save(batch);
         return getBatchResponseDto(batch);
     }
@@ -114,8 +129,22 @@ public class BatchServiceImpl implements BatchService {
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Batch not found with id: " + batchId));
 
-        batch.setStatus(BatchStatus.CANCELLED);
-        batchRepository.save(batch);
+        List<com.fourbitlabs.employee_management_system.entity.Assignment> assignments = assignmentRepository.findByBatchId(batchId);
+        if (assignments != null) {
+            assignmentRepository.deleteAll(assignments);
+        }
+
+        List<com.fourbitlabs.employee_management_system.entity.BatchProgress> progresses = batchProgressRepository.findByBatchId(batchId);
+        if (progresses != null) {
+            for (com.fourbitlabs.employee_management_system.entity.BatchProgress p : progresses) {
+                if (p.getDocumentPublicId() != null) {
+                    cloudinaryService.deleteFile(p.getDocumentPublicId());
+                }
+            }
+            batchProgressRepository.deleteAll(progresses);
+        }
+
+        batchRepository.delete(batch);
     }
 
     @NotNull
@@ -127,8 +156,8 @@ public class BatchServiceImpl implements BatchService {
         batchResponseDto.setStatus(savedBatch.getStatus());
         batchResponseDto.setStartDate(savedBatch.getStartDate());
         batchResponseDto.setEndDate(savedBatch.getEndDate());
-        batchResponseDto.setAnalystId(savedBatch.getAnalyst().getUser().getId());
-        batchResponseDto.setTrainerId(savedBatch.getTrainer().getUser().getId());
+        batchResponseDto.setAnalystId(savedBatch.getAnalyst() != null ? savedBatch.getAnalyst().getUser().getId() : null);
+        batchResponseDto.setTrainerId(savedBatch.getTrainer() != null ? savedBatch.getTrainer().getUser().getId() : null);
         return batchResponseDto;
     }
 }

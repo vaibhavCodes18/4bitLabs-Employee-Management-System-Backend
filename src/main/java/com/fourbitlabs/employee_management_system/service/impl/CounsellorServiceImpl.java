@@ -16,7 +16,9 @@ import com.fourbitlabs.employee_management_system.enums.StudentStatus;
 import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
+import com.fourbitlabs.employee_management_system.repository.AssignmentRepository;
 import com.fourbitlabs.employee_management_system.repository.CounsellorProfileRepository;
+import com.fourbitlabs.employee_management_system.repository.RefreshTokenRepository;
 import com.fourbitlabs.employee_management_system.repository.StudentRepository;
 import com.fourbitlabs.employee_management_system.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +43,12 @@ public class CounsellorServiceImpl implements CounsellorService {
     private StudentRepository studentRepository;
 
     @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     // ========================
@@ -62,7 +70,7 @@ public class CounsellorServiceImpl implements CounsellorService {
         user.setPhone(counsellorRequestDto.getPhone());
         user.setPassword(passwordEncoder.encode(counsellorRequestDto.getPassword()));
         user.setRole(Role.COUNSELLOR);
-        user.setStatus(UserStatus.ACTIVE);
+        user.setStatus(counsellorRequestDto.getUserStatus() != null ? counsellorRequestDto.getUserStatus() : UserStatus.ACTIVE);
         user.setCreatedByAdmin(admin);
         User savedUser = userRepository.save(user);
         user.getManagedUsers().add(savedUser);
@@ -136,6 +144,9 @@ public class CounsellorServiceImpl implements CounsellorService {
         if (updateDto.getSalary() != null) {
             profile.setSalary(updateDto.getSalary());
         }
+        if (updateDto.getUserStatus() != null) {
+            user.setStatus(updateDto.getUserStatus());
+        }
         counsellorProfileRepository.save(profile);
 
         return mapToResponseDto(user, profile);
@@ -151,8 +162,21 @@ public class CounsellorServiceImpl implements CounsellorService {
             throw new ResourceNotFoundException("User with id " + userId + " is not a counsellor");
         }
 
-        user.setStatus(UserStatus.INACTIVE);
-        userRepository.save(user);
+        counsellorProfileRepository.findByUserId(userId)
+                .ifPresent(profile -> {
+                    List<Student> students = studentRepository.findByCounsellorId(profile.getId());
+                    if (students != null) {
+                        for (Student s : students) {
+                            s.setCounsellor(null);
+                            studentRepository.save(s);
+                        }
+                    }
+
+                    counsellorProfileRepository.delete(profile);
+                });
+        
+        refreshTokenRepository.deleteByUser(user);
+        userRepository.delete(user);
     }
 
     // ========================
@@ -213,6 +237,9 @@ public class CounsellorServiceImpl implements CounsellorService {
         if (updateDto.getJoiningDate() != null) {
             student.setJoiningDate(updateDto.getJoiningDate());
         }
+        if (updateDto.getStatus() != null) {
+            student.setStatus(updateDto.getStatus());
+        }
         studentRepository.save(student);
 
         return getStudentResponseDto(student);
@@ -224,8 +251,12 @@ public class CounsellorServiceImpl implements CounsellorService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + studentId));
 
-        student.setStatus(StudentStatus.DROPPED);
-        studentRepository.save(student);
+        List<com.fourbitlabs.employee_management_system.entity.Assignment> assignments = assignmentRepository.findByStudentId(studentId);
+        if (assignments != null) {
+            assignmentRepository.deleteAll(assignments);
+        }
+
+        studentRepository.delete(student);
     }
 
     // ========================
@@ -241,7 +272,7 @@ public class CounsellorServiceImpl implements CounsellorService {
         studentResponseDto.setPhone(savedStudent.getPhone());
         studentResponseDto.setStatus(savedStudent.getStatus());
         studentResponseDto.setJoiningDate(savedStudent.getJoiningDate());
-        studentResponseDto.setCounsellorId(savedStudent.getCounsellor().getUser().getId());
+        studentResponseDto.setCounsellorId(savedStudent.getCounsellor() != null && savedStudent.getCounsellor().getUser() != null ? savedStudent.getCounsellor().getUser().getId() : null);
         return studentResponseDto;
     }
 

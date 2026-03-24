@@ -1,5 +1,6 @@
 package com.fourbitlabs.employee_management_system.dto.request;
 
+import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import jakarta.validation.constraints.*;
 
 public class UserRequestDto {
@@ -15,6 +16,8 @@ public class UserRequestDto {
 
     private String phone;
 
+    private UserStatus userStatus;
+
     public UserRequestDto() {
     }
 
@@ -23,6 +26,14 @@ public class UserRequestDto {
         this.email = email;
         this.password = password;
         this.phone = phone;
+    }
+
+    public UserRequestDto(String name, String email, String password, String phone, UserStatus userStatus) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.userStatus = userStatus;
     }
 
     public String getName() {
@@ -55,5 +66,13 @@ public class UserRequestDto {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
     }
 }

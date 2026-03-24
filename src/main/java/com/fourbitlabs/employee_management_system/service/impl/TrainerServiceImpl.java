@@ -15,6 +15,7 @@ import com.fourbitlabs.employee_management_system.entity.BatchProgress;
 import com.fourbitlabs.employee_management_system.entity.Batch;
 import com.fourbitlabs.employee_management_system.repository.BatchProgressRepository;
 import com.fourbitlabs.employee_management_system.repository.BatchRepository;
+import com.fourbitlabs.employee_management_system.repository.RefreshTokenRepository;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.TrainerProfileRepository;
@@ -47,6 +48,9 @@ public class TrainerServiceImpl implements TrainerService {
     private CloudinaryService cloudinaryService;
 
     @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -64,7 +68,7 @@ public class TrainerServiceImpl implements TrainerService {
         user.setPhone(trainerRequestDto.getPhone());
         user.setPassword(passwordEncoder.encode(trainerRequestDto.getPassword()));
         user.setRole(Role.TRAINER);
-        user.setStatus(UserStatus.ACTIVE);
+        user.setStatus(trainerRequestDto.getUserStatus() != null ? trainerRequestDto.getUserStatus() : UserStatus.ACTIVE);
         user.setCreatedByAdmin(admin);
         User savedUser = userRepository.save(user);
         user.getManagedUsers().add(savedUser);
@@ -165,8 +169,29 @@ public class TrainerServiceImpl implements TrainerService {
             throw new ResourceNotFoundException("User with id " + userId + " is not a trainer");
         }
 
-        user.setStatus(UserStatus.INACTIVE);
-        userRepository.save(user);
+        trainerProfileRepository.findByUserId(userId)
+                .ifPresent(profile -> {
+                    List<Batch> batches = batchRepository.findByTrainerId(profile.getId());
+                    if (batches != null) {
+                        for (Batch b : batches) {
+                            b.setTrainer(null);
+                            batchRepository.save(b);
+                        }
+                    }
+
+                    List<BatchProgress> progresses = batchProgressRepository.findByTrainerId(profile.getId());
+                    if (progresses != null) {
+                        for (BatchProgress p : progresses) {
+                            p.setTrainer(null);
+                            batchProgressRepository.save(p);
+                        }
+                    }
+
+                    trainerProfileRepository.delete(profile);
+                });
+        
+        refreshTokenRepository.deleteByUser(user);
+        userRepository.delete(user);
     }
 
     @NotNull
@@ -276,7 +301,7 @@ public class TrainerServiceImpl implements TrainerService {
         if (batchProgress.getBatch() != null) {
             dto.setBatchId(batchProgress.getBatch().getId());
         }
-        if (batchProgress.getTrainer() != null) {
+        if (batchProgress.getTrainer() != null && batchProgress.getTrainer().getUser() != null) {
             dto.setTrainerId(batchProgress.getTrainer().getUser().getId());
         }
         dto.setDocumentUrl(batchProgress.getDocumentUrl());
