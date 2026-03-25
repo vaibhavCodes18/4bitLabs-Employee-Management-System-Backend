@@ -49,7 +49,7 @@ Thumbs.db
 # Production configuration files
 src/main/resources/application-local.properties
 src/main/resources/application-prod.properties
-src/main/resources/application-secret.properties
+src/main/resources/application-prod.properties
 
 # Temporary files
 
