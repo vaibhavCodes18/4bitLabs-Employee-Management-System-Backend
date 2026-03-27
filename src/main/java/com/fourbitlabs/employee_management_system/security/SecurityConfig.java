@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -48,41 +47,49 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/admin/register", "/api/").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/logout",
+                                "/api/admin/register", "/api/", "/")
+                        .permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll()
-                        
+
                         // Overlapping GET mappings for Dropdowns and Mappings in Dashboards
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/admin/trainers/**").hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/analyst/batches/**").hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/counsellor/students/**").hasAnyRole("ADMIN", "COUNSELLOR", "ANALYST", "TRAINER")
-                        
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/admin/trainers/**")
+                        .hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/analyst/batches/**")
+                        .hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/counsellor/students/**")
+                        .hasAnyRole("ADMIN", "COUNSELLOR", "ANALYST", "TRAINER")
+
                         // Strict Write/Manage Mappings
                         .requestMatchers("/api/admin", "/api/admin/**").hasAnyRole("ADMIN")
                         .requestMatchers("/api/counsellor", "/api/counsellor/**").hasAnyRole("COUNSELLOR", "ADMIN")
                         .requestMatchers("/api/trainer", "/api/trainer/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/analyst", "/api/analyst/**").hasAnyRole("ANALYST", "ADMIN")
-                        .requestMatchers("/api/assignments", "/api/assignments/**").hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
-                        .requestMatchers("/api/batch-progress", "/api/batch-progress/**").hasAnyRole("ADMIN", "TRAINER", "ANALYST", "COUNSELLOR")
-                        .anyRequest().authenticated()
-                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .requestMatchers("/api/assignments", "/api/assignments/**")
+                        .hasAnyRole("ADMIN", "ANALYST", "COUNSELLOR", "TRAINER")
+                        .requestMatchers("/api/batch-progress", "/api/batch-progress/**")
+                        .hasAnyRole("ADMIN", "TRAINER", "ANALYST", "COUNSELLOR")
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder){
+    public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
