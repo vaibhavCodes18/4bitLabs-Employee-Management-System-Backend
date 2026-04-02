@@ -17,6 +17,7 @@ import com.fourbitlabs.employee_management_system.enums.UserStatus;
 import com.fourbitlabs.employee_management_system.exception.DuplicateResourceException;
 import com.fourbitlabs.employee_management_system.exception.ResourceNotFoundException;
 import com.fourbitlabs.employee_management_system.repository.AssignmentRepository;
+import com.fourbitlabs.employee_management_system.repository.BatchRepository;
 import com.fourbitlabs.employee_management_system.repository.CounsellorProfileRepository;
 import com.fourbitlabs.employee_management_system.repository.RefreshTokenRepository;
 import com.fourbitlabs.employee_management_system.repository.StudentRepository;
@@ -47,6 +48,9 @@ public class CounsellorServiceImpl implements CounsellorService {
 
     @Autowired
     private AssignmentRepository assignmentRepository;
+
+    @Autowired
+    private BatchRepository batchRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -253,6 +257,13 @@ public class CounsellorServiceImpl implements CounsellorService {
 
         List<com.fourbitlabs.employee_management_system.entity.Assignment> assignments = assignmentRepository.findByStudentId(studentId);
         if (assignments != null) {
+            for (com.fourbitlabs.employee_management_system.entity.Assignment assignment : assignments) {
+                com.fourbitlabs.employee_management_system.entity.Batch batch = assignment.getBatch();
+                if (batch != null && com.fourbitlabs.employee_management_system.enums.AssignmentStatus.ACTIVE.equals(assignment.getStatus())) {
+                    batch.setStudentCount(Math.max(0, (batch.getStudentCount() != null ? batch.getStudentCount() : 0) - 1));
+                    batchRepository.save(batch);
+                }
+            }
             assignmentRepository.deleteAll(assignments);
         }
 
