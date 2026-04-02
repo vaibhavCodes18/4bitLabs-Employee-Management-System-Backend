@@ -44,7 +44,7 @@ public class Batch {
     }
 
     public Batch(Long id, String name, String course, LocalDate startDate, LocalDate endDate,
-            BatchStatus status, TrainerProfile trainer, AnalystProfile analyst) {
+                 BatchStatus status, TrainerProfile trainer, AnalystProfile analyst) {
         this.id = id;
         this.name = name;
         this.course = course;
@@ -55,8 +55,7 @@ public class Batch {
         this.analyst = analyst;
     }
 
-    public Batch(Long id, String name, String course, LocalDate startDate, LocalDate endDate, Integer studentCount,
-            BatchStatus status, TrainerProfile trainer, AnalystProfile analyst) {
+    public Batch(Long id, String name, String course, LocalDate startDate, LocalDate endDate, Integer studentCount, BatchStatus status, TrainerProfile trainer, AnalystProfile analyst) {
         this.id = id;
         this.name = name;
         this.course = course;
