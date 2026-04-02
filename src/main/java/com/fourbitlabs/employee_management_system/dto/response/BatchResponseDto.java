@@ -17,6 +17,8 @@ public class BatchResponseDto {
 
     private BatchStatus status;
 
+    private Integer studentCount;
+
     private Long trainerId;
 
     private Long analystId;
@@ -24,7 +26,7 @@ public class BatchResponseDto {
     public BatchResponseDto() {
     }
 
-    public BatchResponseDto(Long id, String name, String course, LocalDate startDate, LocalDate endDate, BatchStatus status, Long trainerId, Long analystId) {
+    public BatchResponseDto(Long id, String name, String course, LocalDate startDate, LocalDate endDate, BatchStatus status, Integer studentCount,Long trainerId, Long analystId) {
         this.id = id;
         this.name = name;
         this.course = course;
@@ -33,6 +35,7 @@ public class BatchResponseDto {
         this.status = status;
         this.trainerId = trainerId;
         this.analystId = analystId;
+        this.studentCount = studentCount;
     }
 
     public Long getId() {
@@ -97,5 +100,13 @@ public class BatchResponseDto {
 
     public void setAnalystId(Long analystId) {
         this.analystId = analystId;
+    }
+
+    public Integer getStudentCount() {
+        return studentCount;
+    }
+
+    public void setStudentCount(Integer studentCount) {
+        this.studentCount = studentCount;
     }
 }

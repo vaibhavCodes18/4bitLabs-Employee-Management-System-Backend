@@ -60,6 +60,7 @@ public class BatchServiceImpl implements BatchService {
         batch.setAnalyst(analystProfile);
         batch.setTrainer(trainerProfile);
         batch.setStatus(BatchStatus.ACTIVE);
+        batch.setStudentCount(batch.getStudentCount());
         Batch savedBatch = batchRepository.save(batch);
 
         return getBatchResponseDto(savedBatch);
@@ -156,6 +157,7 @@ public class BatchServiceImpl implements BatchService {
         batchResponseDto.setStatus(savedBatch.getStatus());
         batchResponseDto.setStartDate(savedBatch.getStartDate());
         batchResponseDto.setEndDate(savedBatch.getEndDate());
+        batchResponseDto.setStudentCount(savedBatch.getStudentCount());
         batchResponseDto.setAnalystId(savedBatch.getAnalyst() != null ? savedBatch.getAnalyst().getUser().getId() : null);
         batchResponseDto.setTrainerId(savedBatch.getTrainer() != null ? savedBatch.getTrainer().getUser().getId() : null);
         return batchResponseDto;

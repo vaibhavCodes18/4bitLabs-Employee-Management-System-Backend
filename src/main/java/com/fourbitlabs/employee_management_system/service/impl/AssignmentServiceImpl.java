@@ -50,6 +50,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         assignment.setAssignedDate(studentRequestDto.getAssignedDate());
         assignment.setStatus(AssignmentStatus.ACTIVE);
         Assignment savedAssignment = assignmentRepository.save(assignment);
+        
+        batch.setStudentCount((batch.getStudentCount() != null ? batch.getStudentCount() : 0) + 1);
+        batchRepository.save(batch);
 
         return getAssignmentResponseDto(savedAssignment);
     }
@@ -79,6 +82,13 @@ public class AssignmentServiceImpl implements AssignmentService {
         newAssignment.setStatus(AssignmentStatus.ACTIVE);
         newAssignment.setAssignedDate(LocalDate.now());
         Assignment newSavedAssignment = assignmentRepository.save(newAssignment);
+
+        Batch oldBatch = assignment.getBatch();
+        oldBatch.setStudentCount(Math.max(0, (oldBatch.getStudentCount() != null ? oldBatch.getStudentCount() : 0) - 1));
+        batchRepository.save(oldBatch);
+        
+        newBatch.setStudentCount((newBatch.getStudentCount() != null ? newBatch.getStudentCount() : 0) + 1);
+        batchRepository.save(newBatch);
 
         return getAssignmentTransferBatchResponseDto(newSavedAssignment, assignment);
     }

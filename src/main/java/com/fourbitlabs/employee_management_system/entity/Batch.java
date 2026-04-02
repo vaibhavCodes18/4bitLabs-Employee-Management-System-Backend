@@ -22,6 +22,8 @@ public class Batch {
 
     private LocalDate endDate;
 
+    private Integer studentCount = 0;
+
     @Enumerated(EnumType.STRING)
     private BatchStatus status;
 
@@ -48,6 +50,18 @@ public class Batch {
         this.course = course;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.status = status;
+        this.trainer = trainer;
+        this.analyst = analyst;
+    }
+
+    public Batch(Long id, String name, String course, LocalDate startDate, LocalDate endDate, Integer studentCount, BatchStatus status, TrainerProfile trainer, AnalystProfile analyst) {
+        this.id = id;
+        this.name = name;
+        this.course = course;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.studentCount = studentCount;
         this.status = status;
         this.trainer = trainer;
         this.analyst = analyst;
@@ -144,5 +158,13 @@ public class Batch {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getStudentCount() {
+        return studentCount;
+    }
+
+    public void setStudentCount(Integer studentCount) {
+        this.studentCount = studentCount;
     }
 }

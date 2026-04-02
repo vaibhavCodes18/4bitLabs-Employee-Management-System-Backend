@@ -11,6 +11,8 @@ public class BatchRequestDto {
 
     private LocalDate endDate;
 
+    private Integer studentCount;
+
     private Long trainerId;
 
     private Long analystId;
@@ -18,13 +20,14 @@ public class BatchRequestDto {
     public BatchRequestDto() {
     }
 
-    public BatchRequestDto(String name, String course, LocalDate startDate, LocalDate endDate, Long trainerId, Long analystId) {
+    public BatchRequestDto(String name, String course, LocalDate startDate, LocalDate endDate,Integer studentCount, Long trainerId, Long analystId) {
         this.name = name;
         this.course = course;
         this.startDate = startDate;
         this.endDate = endDate;
         this.trainerId = trainerId;
         this.analystId = analystId;
+        this.studentCount = studentCount;
     }
 
     public String getName() {
@@ -73,5 +76,13 @@ public class BatchRequestDto {
 
     public void setAnalystId(Long analystId) {
         this.analystId = analystId;
+    }
+
+    public Integer getStudentCount() {
+        return studentCount;
+    }
+
+    public void setStudentCount(Integer studentCount) {
+        this.studentCount = studentCount;
     }
 }
